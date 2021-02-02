@@ -1,0 +1,11 @@
+NAME,HOURS,CODE
+Structures,70,STR
+Pipe-Racks,90,PRA
+Structure Foundation,5,SFO
+Pipe-Rack Foundation,5,PFO
+Equipment Foundation,5,EFO
+Existing Structures,70,XST
+Existing Pipe-Racks,90,XPR
+Existing  Structure Foundation,5,XSF
+Existing Pipe-Rack Foundation,5,XPF
+Existing Equipment Foundation,5,XEF
