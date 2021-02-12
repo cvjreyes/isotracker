@@ -141,6 +141,7 @@ Route::get('/supports', 'IsoController@supports')->name('supports');
 Route::get('/materials', 'IsoController@materials')->name('materials');
 Route::get('/iso', 'IsoController@iso')->name('iso');
 Route::get('/lead', 'IsoController@lead')->name('lead');
+Route::get('/trash', 'IsoController@trash')->name('trash');
 Route::get('/commontray', 'IsoController@commontray')->name('commontray');
 //Route::get('rejectfromstress/{filename}', ['as' => 'rejectfromstress', 'uses' => 'IsoController@rejectfromstress']);
 //Route::get('rejectfromsupports/{filename}', ['as' => 'rejectfromsupports', 'uses' => 'IsoController@rejectfromsupports']);

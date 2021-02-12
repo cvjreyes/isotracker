@@ -287,9 +287,9 @@ $(document).on('click', '.show-vcomments-modal', function() {
         $pdfspo_is= "../public/storage/isoctrl/iso/attach/".$afilename[0]."-PROC.pdf";
         $pdfsit_is= "../public/storage/isoctrl/iso/attach/".$afilename[0]."-INST.pdf";
 
-           $issued = DB::select("SELECT * FROM hisoctrls_temp WHERE id=(SELECT max(id) FROM hisoctrls_temp WHERE  filename LIKE '%".$afilename[0]."%')");
+           $issued = DB::select("SELECT * FROM misoctrls WHERE id=(SELECT max(id) FROM misoctrls WHERE  filename LIKE '%".$afilename[0]."%')");
 
-           $requested = DB::select("SELECT * FROM hisoctrls_temp WHERE id=(SELECT max(id) FROM hisoctrls_temp WHERE  filename LIKE '%".$afilename[0]."%')"); // same query for request
+           $requested = DB::select("SELECT * FROM misoctrls WHERE id=(SELECT max(id) FROM misoctrls WHERE  filename LIKE '%".$afilename[0]."%')"); // same query for request
 
             if ($issued[0]->requested==1 OR $issued[0]->requested==2){ ?> <!-- solicitud diseño -->
 

@@ -5,6 +5,7 @@ use Auth;
 
 use Illuminate\Http\Request;
 use App\Hisoctrl;
+use App\Misoctrl;
 use App\Disoctrl;
 use Illuminate\Support\Facades\Input;
 use Validator;
@@ -17,37 +18,13 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
 
- DB::statement(DB::raw("TRUNCATE TABLE `hisoctrls_temp`"));
-
-         // Schema::create('hisoctrls_temp', function (Blueprint $table) {
-         //    $table->increments('id');
-         //    $table->string('filename');
-         //    $table->integer('revision');
-         //    $table->integer('tie');
-         //    $table->integer('spo');
-         //    $table->integer('sit');
-         //    $table->boolean('requested')->nullable();
-         //    $table->boolean('requestedlead')->nullable();
-         //    $table->boolean('issued')->nullable();
-         //    $table->boolean('deleted')->nullable();
-         //    $table->boolean('claimed')->nullable();
-         //    $table->boolean('verifydesign')->nullable();
-         //    $table->boolean('verifystress')->nullable();
-         //    $table->boolean('verifysupports')->nullable();
-         //    $table->boolean('fromldgsupports')->nullable();
-         //    $table->string('from');
-         //    $table->string('to');
-         //    $table->longText('comments');
-         //    $table->string('user');
-         //    //$table->string('created_at');
-         //    $table->timestamps();
-         //    });
+/* DB::statement(DB::raw("TRUNCATE TABLE `hisoctrls_temp`"));
         
 
         DB::statement(DB::raw("INSERT INTO hisoctrls_temp (id,filename,revision,tie,spo,sit,requested,requestedlead,issued,deleted,claimed,
                                         verifydesign,verifystress,verifysupports,fromldgsupports,comments,`from`,`to`,`user`,`created_at`) 
                                         SELECT id,filename,revision,tie,spo,sit,requested,requestedlead,issued,deleted,claimed,
-                                        verifydesign,verifystress,verifysupports,fromldgsupports,comments,`from`,`to`,`user`,`created_at` FROM hisoctrls WHERE id IN (SELECT MAX(id) FROM hisoctrls GROUP BY filename) ORDER BY id DESC"));
+                                        verifydesign,verifystress,verifysupports,fromldgsupports,comments,`from`,`to`,`user`,`created_at` FROM hisoctrls WHERE id IN (SELECT MAX(id) FROM hisoctrls GROUP BY filename) ORDER BY id DESC"));*/
 
 
 // FIN DE LA GENERACIÓN DE hisoctrls_temp
@@ -93,6 +70,14 @@ class IsoController extends Controller
     public function materials()
     {
         return view('isoctrl.materials');
+    }
+
+    public function trash()
+    {
+       
+        $filename = scandir("../public/storage/isoctrl/TRASH");
+
+       return view('isoctrl.trash')->with('filenames', $filenames);
     }
 
     public function commontray()
@@ -370,6 +355,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Design',
+            'to' =>'Stress',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -386,7 +386,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+            $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -411,13 +416,15 @@ class IsoController extends Controller
               'instress' =>$currentdate
                 ]);
 
-             // Disoctrl::create([
-             //        'filename' =>$filename,
-             //        'revision' =>$revision,
-             //        'ddesign' =>$currentdate,
-             //        'instress' =>$currentdate,
-             //          ]);
+            }else{
 
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>2,//STRESS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+            }
 
 
         return redirect('design')->with('success','SUCCESS! '.$filename.' has been sent to Stress!');
@@ -496,6 +503,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Supports',
+            'to' =>'Stress',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -512,7 +534,12 @@ class IsoController extends Controller
 
           // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+            $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -536,6 +563,16 @@ class IsoController extends Controller
               'instress' =>$currentdate
                 ]);
 
+              }else{
+
+                Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>2,//STRESS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+
+              }
 
 
         return redirect('supports')->with('success','SUCCESS! '.$filename.' has been sent to Stress!');
@@ -618,6 +655,23 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Design',
+            'to' =>'Stress',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+        
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -634,7 +688,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -659,6 +718,16 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+          }else{
+
+            Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>2,//STRESS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+          }
 
   }elseif ($destination == 'ldgstress'){        
         
@@ -700,6 +769,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'LDG Design',
+            'to' =>'Stress',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -716,7 +800,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+              $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -742,7 +831,15 @@ class IsoController extends Controller
               'instress' =>$currentdate
                 ]);
 
+          }else{
 
+               Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>2,//STRESS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+          }
   
   }elseif ($destination =='supports') {
     
@@ -784,6 +881,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Design',
+            'to' =>'Supports',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -800,7 +912,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+           $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -825,6 +942,16 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+              }else{
+
+                Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>3,//SUPPORTS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+              }
 
     }elseif ($destination =='ldgsupports') {
     
@@ -866,6 +993,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'LDG Design',
+            'to' =>'Supports',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -882,7 +1024,13 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
+
 
                if ($ifc==1){
 
@@ -897,8 +1045,6 @@ class IsoController extends Controller
                 }
             // FIN PARA ASIGNAR PROGRESO
 
-
-
             Disoctrl::where('filename',$filename)->update([
               'isostatus_id' =>3,//SUPPORTS
               'progress' =>$progress[0]->value,
@@ -908,6 +1054,16 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+          }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>3,//SUPPORTS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+          }
 
     }elseif ($destination =='ldgmaterials') {
     
@@ -949,6 +1105,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'LDG Design',
+            'to' =>'Materials',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]); 
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -965,7 +1136,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+            $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -991,6 +1167,15 @@ class IsoController extends Controller
               'instress' =>$currentdate
                 ]);
   
+          }else{
+
+             Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>4,//MATERIALS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+          }
 
       }elseif($destination=='ldgdesign'){  
   
@@ -1058,6 +1243,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Design',
+            'to' =>'Materials',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -1075,7 +1275,12 @@ class IsoController extends Controller
 
                // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -1100,7 +1305,15 @@ class IsoController extends Controller
               'instress' =>$currentdate
                 ]);
 
+          }else{
 
+            Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>4,//MATERIALS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+          }
 
   }
 
@@ -1186,6 +1399,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Design',
+            'to' =>'Supports',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
          // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -1202,7 +1430,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+            $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -1228,7 +1461,15 @@ class IsoController extends Controller
               'insupports' =>$currentdate
                 ]);
 
+          }else{
 
+             Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>3,//SUPPORTS
+              'ddesign' =>$currentdate,
+              'insupports' =>$currentdate
+                ]);
+
+          }
 
 
         return redirect('design')->with('success','SUCCESS! '.$filename.' has been sent to Supports!');
@@ -1292,6 +1533,21 @@ class IsoController extends Controller
 
          Hisoctrl::create([
             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Design',
+            'to' =>'Materials',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
             'revision' =>$revision,
             'spo' =>$spo,
             'sit' =>$sit,
@@ -1400,6 +1656,20 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+               'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Design',
+            'to' =>'Issuer',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
 
          // SE CREA REGISTRO DE FECHA
 
@@ -1486,6 +1756,21 @@ class IsoController extends Controller
 
          Hisoctrl::create([
             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Stress',
+            'to' =>'Issuer',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
             'revision' =>$revision,
             'spo' =>$spo,
             'sit' =>$sit,
@@ -1593,6 +1878,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Design',
+            'to' =>'To Issue',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
 
 
         return redirect('design')->with('success','SUCCESS! The Isofile '.$filename.' is prepared to Issue and sent to IsoController!');
@@ -1662,6 +1962,22 @@ class IsoController extends Controller
 
          Hisoctrl::create([
             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'issued' => 1,
+            'from' =>'Issuer',
+            'to' =>'To Issue',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
             'revision' =>$revision,
             'spo' =>$spo,
             'sit' =>$sit,
@@ -1764,6 +2080,22 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>0,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'issued' =>1,
+            'from' =>'Issuer',
+            'to' =>'To Issue',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -1780,7 +2112,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -1805,6 +2142,16 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+              }else{
+
+                Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>12,//TO ISSUE
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+              }
 
 
   }elseif ($destination =='comments') {
@@ -1846,6 +2193,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Issuer',
+            'to' =>'Design',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -1862,7 +2224,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -1887,6 +2254,16 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+          }else{
+
+             Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>16,//DESIGN
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+          }
 
 
   }
@@ -1921,8 +2298,6 @@ class IsoController extends Controller
         mkdir("../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/", 0700);
 
 
-        //$path = "../public/storage/isoctrl/iso/transmittals/";
-        //$trn  = scandir($path);
 
         $afilename=explode(".", $filename);
 
@@ -1939,20 +2314,11 @@ class IsoController extends Controller
          $revision = $check[0]->revision;
          $issued = $check[0]->issued;
 
-         if (is_null($revision)){
-
-            $revision = 0;
-
-         }
-
          if ($issued==2){ //PARA COMPROBAR REVISIONES
 
             $revision = $revision+1;
 
-         }else{
-
-            $revision = $revision;
-         } 
+         }
 
          $newfilename = $afilename[0]."-".$revision;  
         
@@ -1967,53 +2333,35 @@ class IsoController extends Controller
         copy ("../public/storage/isoctrl/iso/attach/".$afilename[0].".zip","../public/storage/isoctrl/iso/history/".$newfilename.".zip");
         rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].".zip","../public/storage/isoctrl/iso/attach/".$newfilename.".zip");
 
-        // PARA DXF (VARIOS POR ISO)
 
-        // for ($i=1; $i<99; $i++) 
-        //   {   
-
-        //       if ($i<10){$correlative = "-0".$i;}else{$correlative = "-".$i;}
-
-        //       copy ("../public/storage/isoctrl/iso/attach/".$afilename[0].$correlative.".dxf","../public/storage/isoctrl/iso/history/".$afilename[0]."-".$revision.$correlative.".dxf");
-        //       rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].$correlative.".dxf","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$afilename[0]."-".$revision.$correlative.".dxf");
-
-
-        //   }
-        
-        // FIN VARIOS DXF
-
-        // copy ("../public/storage/isoctrl/iso/attach/".$afilename[0].".b","../public/storage/isoctrl/iso/history/".$afilename[0]."-".$revision.".b");  
-        // rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].".b","../public/storage/isoctrl/iso/attach/".$afilename[0]."-".$revision.".b");
-        // rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].".cii","../public/storage/isoctrl/iso/attach/".$afilename[0]."-".$revision.".cii");
-
-        
+         //FOR TRANSMITTALS
 
         rename ("../public/storage/isoctrl/iso/attach/".$newfilename."-CL.pdf","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename.".pdf");
         rename ("../public/storage/isoctrl/iso/attach/".$newfilename."-INST.pdf","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename."-INST.pdf");
         rename ("../public/storage/isoctrl/iso/attach/".$newfilename."-PROC.pdf","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename."-PROC.pdf");
         rename ("../public/storage/isoctrl/iso/attach/".$newfilename.".zip","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename.".zip");
 
-        // PARA DXF (VARIOS POR ISO)
 
-        for ($i=1; $i<99; $i++) 
-          {   
-
-              if ($i<10){$correlative = "-0".$i;}else{$correlative = "-".$i;}
-
-
-              rename ("../public/storage/isoctrl/iso/attach/".$newfilename.$correlative.".dxf","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename.$correlative.".dxf");
-
-
-          }
-        
-        // FIN VARIOS DXF
-
-        
-        rename ("../public/storage/isoctrl/iso/attach/".$newfilename.".b","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename.".b");
 
          Hisoctrl::create([
             'filename' =>$newfilename.".pdf",
-            'revision' =>$revision,
+            'revision' =>$revision, 
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'issued' => 2,
+            'from' =>'IsoController',
+            'to' =>'Issued '.$trname,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$newfilename.".pdf",
+            'revision' =>$revision, 
             'spo' =>$spo,
             'sit' =>$sit,
             'requested' =>$requestbydesign,
@@ -2029,7 +2377,12 @@ class IsoController extends Controller
 
           // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+           $progress = env('APP_PROGRESS');
+
+            if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$newfilename.".pdf'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -2051,11 +2404,25 @@ class IsoController extends Controller
               'progressreal' =>$progress[0]->value,
               'progressmax' =>$progressmax[0]->max,
               'issuedfolder' =>$trname, //folder de emisión
-              'revision' => $revision, //revision de la emitida
+              'revision' => $revision, 
               'issuedate' =>$issuedate, //fecha de emisión
               'ddesign' =>$currentdate,
               'diso' =>$currentdate
                 ]);
+
+             }else{
+
+               Disoctrl::where('filename',$filename)->update([
+              'filename' => $newfilename.".pdf",
+              'isostatus_id' =>13,//ISO,
+              'issuedfolder' =>$trname, //folder de emisión
+              'revision' => $revision, 
+              'issuedate' =>$issuedate, //fecha de emisión
+              'ddesign' =>$currentdate,
+              'diso' =>$currentdate
+                ]);
+
+              }
 
         return redirect('iso')->with('success','SUCCESS! The Isofile '.$filename.' has been Issued!');
 
@@ -2108,20 +2475,12 @@ class IsoController extends Controller
                    $revision = $check[0]->revision;
                    $issued = $check[0]->issued;
 
-                   // if (is_null($revision)){
-
-                   //    $revision = 0;
-
-                   // }
 
                    if ($issued==2){ //PARA COMPROBAR REVISIONES
 
                       $revision = $revision+1;
 
-                   }else{
-
-                      $revision = $revision;
-                   } 
+                   }
 
                    $newfilename = $afilename[0]."-".$revision;  
                   
@@ -2136,52 +2495,35 @@ class IsoController extends Controller
                   copy ("../public/storage/isoctrl/iso/attach/".$afilename[0].".zip","../public/storage/isoctrl/iso/history/".$newfilename.".zip");
                   rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].".zip","../public/storage/isoctrl/iso/attach/".$newfilename.".zip");
 
-                  // PARA DXF (VARIOS POR ISO)
 
-                  // for ($i=1; $i<99; $i++) 
-                  //   {   
-
-                  //       if ($i<10){$correlative = "-0".$i;}else{$correlative = "-".$i;}
-
-                  //       copy ("../public/storage/isoctrl/iso/attach/".$afilename[0].$correlative.".dxf","../public/storage/isoctrl/iso/history/".$afilename[0]."-".$revision.$correlative.".dxf");
-                  //       rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].$correlative.".dxf","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$afilename[0]."-".$revision.$correlative.".dxf");
-
-
-                  //   }
-                  
-                  // FIN VARIOS DXF
-
-                  // copy ("../public/storage/isoctrl/iso/attach/".$afilename[0].".b","../public/storage/isoctrl/iso/history/".$afilename[0]."-".$revision.".b");  
-                  // rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].".b","../public/storage/isoctrl/iso/attach/".$afilename[0]."-".$revision.".b");
-                  // rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].".cii","../public/storage/isoctrl/iso/attach/".$afilename[0]."-".$revision.".cii");
-
-                  $newfilename = $afilename[0]."-".$revision;
+                  //FOR TRANSMITTAL
 
                   rename ("../public/storage/isoctrl/iso/attach/".$newfilename."-CL.pdf","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename.".pdf");
                   rename ("../public/storage/isoctrl/iso/attach/".$newfilename."-INST.pdf","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename."-INST.pdf");
                   rename ("../public/storage/isoctrl/iso/attach/".$newfilename."-PROC.pdf","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename."-PROC.pdf");
                   rename ("../public/storage/isoctrl/iso/attach/".$newfilename.".zip","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename.".zip");
 
-                  // PARA DXF (VARIOS POR ISO)
-
-                  // for ($i=1; $i<99; $i++) 
-                  //   {   
-
-                  //       if ($i<10){$correlative = "-0".$i;}else{$correlative = "-".$i;}
-
-
-                  //       rename ("../public/storage/isoctrl/iso/attach/".$newfilename.$correlative.".dxf","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename.$correlative.".dxf");
-
-
-                  //   }
-                  
-                  // FIN VARIOS DXF
-
-                  
-                  // rename ("../public/storage/isoctrl/iso/attach/".$newfilename.".b","../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/".$newfilename.".b");
+                
 
                    Hisoctrl::create([
                       'filename' =>$newfilename.".pdf",
+                      'revision' =>$revision,
+                      'spo' =>$spo,
+                      'sit' =>$sit,
+                      'requested' =>$requestbydesign,
+                      'requestedlead' =>$requestbylead,
+                      'issued' => 2,
+                      'from' =>'IsoController',
+                      'to' =>'Issued '.$trname,
+                      'comments' =>$comments,
+                      'user' =>Auth::user()->name,
+                       ]);
+
+
+                    //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$newfilename.".pdf",
                       'revision' =>$revision,
                       'spo' =>$spo,
                       'sit' =>$sit,
@@ -2198,7 +2540,17 @@ class IsoController extends Controller
 
                          // PARA ASIGNAR PROGRESO
 
-                        $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+                        $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$newfilename.".pdf'"); 
+
+
+                        $progress = env('APP_PROGRESS');
+
+                          if ($progress==1){
+
+                            $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$newfilename.".pdf'"); 
+                            $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
+
+                        //$tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                          if ($ifc==1){
 
@@ -2227,6 +2579,20 @@ class IsoController extends Controller
                         'diso' =>$currentdate
                           ]);
 
+                        }else{
+
+                       Disoctrl::where('filename',$filename)->update([
+                       'filename' => $newfilename.".pdf",
+                        'isostatus_id' =>13,//ISO
+                        'issuedfolder' =>$trname, //folder de emisión
+                        'revision' => $revision, //revision de la emitida
+                        'issuedate' =>$issuedate, //fecha de emisión
+                        'ddesign' =>$currentdate,
+                        'diso' =>$currentdate
+                        ]);
+
+                      }
+
                   }elseif ($destination =='comments') {
 
                           rename ("../public/storage/isoctrl/iso/".$filename,"../public/storage/isoctrl/design/".$filename);
@@ -2234,21 +2600,6 @@ class IsoController extends Controller
                           rename ("../public/storage/isoctrl/iso/attach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/design/attach/".$afilename[0]."-INST.pdf");
                           rename ("../public/storage/isoctrl/iso/attach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/design/attach/".$afilename[0]."-PROC.pdf");
                           rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].".zip","../public/storage/isoctrl/design/attach/".$afilename[0].".zip");
-
-                       // PARA DXF (VARIOS POR ISO)
-
-                          // for ($i=1; $i<99; $i++) 
-                          //   {   
-
-                          //       if ($i<10){$correlative = "-0".$i;}else{$correlative = "-".$i;}
-
-                          //         rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].$correlative.".dxf","../public/storage/isoctrl/design/attach/".$afilename[0].$correlative.".dxf");
-
-                          //   }
-                          
-                          // FIN VARIOS DXF                  
-                          // rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].".b","../public/storage/isoctrl/design/attach/".$afilename[0].".b");
-                          // rename ("../public/storage/isoctrl/iso/attach/".$afilename[0].".cii","../public/storage/isoctrl/design/attach/".$afilename[0].".cii");
 
                           
                           Hisoctrl::create([
@@ -2264,9 +2615,29 @@ class IsoController extends Controller
                           'user' =>Auth::user()->name,
                            ]);
 
+                           //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+                     Misoctrl::where('filename',$filename)->update([
+                           'filename' =>$filename,
+                          'revision' =>$revision,
+                          'spo' =>$spo,
+                          'sit' =>$sit,
+                          'requested' =>$requestbydesign,
+                          'requestedlead' =>$requestbylead,
+                          'from' =>'IsoController',
+                          'to' =>'With Comments',
+                          'comments' =>$comments,
+                          'user' =>Auth::user()->name,
+                           ]);
+
                              // PARA ASIGNAR PROGRESO
 
-                            $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+                            $progress = env('APP_PROGRESS');
+
+                          if ($progress==1){
+
+                            $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+                            $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                              if ($ifc==1){
 
@@ -2283,12 +2654,20 @@ class IsoController extends Controller
 
                           Disoctrl::where('filename',$filename)->update([
                           'isostatus_id' =>16,//RETURN BY ISO 
-                          //'progress' =>$progress[0]->value, REGRESO
+                          'progress' =>$progress[0]->value, //REGRESO
                           'progressreal' =>$progress[0]->value,
                           'progressmax' =>$progressmax[0]->max,            
                            ]);
 
-                        }
+                             }else{
+
+                             Disoctrl::where('filename',$filename)->update([
+                             'isostatus_id' =>16,//RETURN BY ISO 
+                              ]);
+
+                         }
+
+                      }
 
 
                       }//END FOREACH
@@ -2444,6 +2823,20 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$afilename[0]."-".$revision.".".$afilename[1],
+            'revision' =>$revision,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'issued' => 2,
+            'from' =>'IsoController',
+            'to' =>'Issued '.$trname,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
           $currentdate = date('d-m-Y'); // SE CREA REGISTRO DE FECHA
         
             Disoctrl::where('filename',$filename)->update([
@@ -2484,6 +2877,19 @@ class IsoController extends Controller
 
              Hisoctrl::create([
             'filename' =>$filename,
+            'revision' =>$revision,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'IsoController',
+            'to' =>'Design',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
             'revision' =>$revision,
             'requested' =>$requestbydesign,
             'requestedlead' =>$requestbylead,
@@ -2602,9 +3008,29 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Stress',
+            'to' =>'Supports',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+                $progress = env('APP_PROGRESS');
+
+                  if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -2631,6 +3057,25 @@ class IsoController extends Controller
               'insupports' =>$currentdate,
               'instress' =>''
                 ]);
+
+
+               }else{
+
+                Disoctrl::where('filename',$filename)->update([
+                 'isostatus_id' =>3,//SUPPORTS
+                'progress' =>$progress[0]->value,
+                'progressreal' =>$progress[0]->value,
+                'progressmax' =>$progressmax[0]->max,
+                'ddesign' =>$currentdate,
+                'dstress' =>$currentdate,
+                'insupports' =>$currentdate,
+                'instress' =>''
+                 ]);
+
+              }
+
+
+
       
       
         return redirect('stress')->with('success','SUCCESS! '.$filename.' has been sent to Supports!');
@@ -2714,6 +3159,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Stress',
+            'to' =>'Supports',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -2730,7 +3190,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+              $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -2755,6 +3220,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+
+             }else{
+
+                Disoctrl::where('filename',$filename)->update([
+               'isostatus_id' =>3,//SUPPORTS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                 ]);
+
+              }
 
   }elseif ($destination == 'ldgmaterials'){        
         
@@ -2796,6 +3272,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'LDG Stress',
+            'to' =>'Materials',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -2811,8 +3302,12 @@ class IsoController extends Controller
             }
 
             // PARA ASIGNAR PROGRESO
+            $progress = env('APP_PROGRESS');
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -2837,6 +3332,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+
+            }else{
+
+               Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>4,//MATERIALS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+              }
 
   }elseif($destination=='ldgstress'){  
   
@@ -2887,6 +3393,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Stress',
+            'to' =>'Design',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -2903,7 +3424,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+            $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -2927,6 +3453,19 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+          
+            }else{
+
+               Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>16,//DESIGN
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+              }
+
+
 
 
   }
@@ -3000,6 +3539,21 @@ class IsoController extends Controller
 
          Hisoctrl::create([
             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Supports',
+            'to' =>'Materials',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
             'revision' =>$revision,
             'spo' =>$spo,
             'sit' =>$sit,
@@ -3101,6 +3655,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Supports',
+            'to' =>'Materials',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -3117,7 +3686,12 @@ class IsoController extends Controller
 
                // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -3141,6 +3715,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+          }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>4,//MATERIALS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+
+              }
 
    }elseif ($destination == 'ldgmaterials'){        
         
@@ -3181,6 +3766,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+               'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'LDG Supports',
+            'to' =>'Materials',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -3197,7 +3797,13 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+
+              $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -3222,6 +3828,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+           }else{
+
+               Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>4,//MATERIALS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+
+              }
 
 
     }elseif ($destination == 'stress'){        
@@ -3264,6 +3881,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Supports',
+            'to' =>'Stress',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -3280,7 +3912,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+            $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -3304,6 +3941,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+            }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>2,//STRESS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+
+              }
 
     }elseif ($destination == 'ldgstress'){        
         
@@ -3348,6 +3996,24 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+               'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'verifystress' =>1,
+            'verifysupports' =>1,
+            'fromldgsupports' =>1,
+            'from' =>'LDG Supports',
+            'to' =>'LDG Stress',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -3363,7 +4029,13 @@ class IsoController extends Controller
             }
 
               //  PARA ASIGNAR PROGRESO
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+
+            $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+              
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -3387,6 +4059,18 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+
+            }else{
+
+               Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>18,//LDG STRESS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+
+              }
 
   }elseif($destination=='ldgsupports'){  
   
@@ -3435,6 +4119,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Supports',
+            'to' =>'Design',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -3451,7 +4150,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+            $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -3475,6 +4179,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+             }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>16,//DESIGN
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+
+              }
 
 
   }
@@ -3561,11 +4276,31 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Materials',
+            'to' =>'Issuer',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
          $currentdate = date('d-m-Y'); // SE CREA REGISTRO DE FECHA
 
          // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+         $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -3590,6 +4325,19 @@ class IsoController extends Controller
               'inlead' =>$currentdate,
               'inmaterials' =>''
                 ]);
+
+              }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>14,//LEAD
+              'ddesign' =>$currentdate,
+              'dmaterials' =>$currentdate,
+              'inlead' =>$currentdate,
+              'inmaterials' =>''
+                ]);
+
+
+              }
 
 
         return redirect('materials')->with('success','SUCCESS! The Isofile '.$filename.' is prepared to Issue and sent to Issuer!');
@@ -3670,6 +4418,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+               'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Materials',
+            'to' =>'Issuer',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -3686,7 +4449,12 @@ class IsoController extends Controller
 
                // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+            $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -3711,6 +4479,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+             }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>14,//LEAD
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+
+              }
 
 
   }elseif ($destination =='comments') {
@@ -3752,6 +4531,21 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Materials',
+            'to' =>'Design',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
         // SE CREA REGISTRO DE FECHA
 
         $currentdate = date('d-m-Y');
@@ -3768,7 +4562,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+            $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -3792,6 +4591,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+              }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>16,//DESIGN
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+
+              }
 
 
   }
@@ -3901,11 +4711,31 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Stress',
+            'to' =>'With Comments',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
             $currentdate = date('d-m-Y'); // SE CREA REGISTRO DE FECHA
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+            $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -3937,6 +4767,25 @@ class IsoController extends Controller
               'diso' =>''
 
                 ]);
+
+             }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>16,// 7 RETURN BY STRESS
+              'ddesign' =>$currentdate,
+              'instress' =>'',
+              'insupports' =>'',
+              'inmaterials' =>'',
+              'inlead' =>'',
+              'iniso' =>'',
+              'dstress' =>'',
+              'dsupports' =>'',
+              'dmaterials' =>'',
+              'dlead' =>'',
+              'diso' =>''
+              ]);
+
+              }
 
 
 
@@ -4034,11 +4883,31 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Supports',
+            'to' =>'With Comments',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
          $currentdate = date('d-m-Y'); // SE CREA REGISTRO DE FECHA
 
          // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+         $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -4069,6 +4938,26 @@ class IsoController extends Controller
               'dlead' =>'',
               'diso' =>''
                 ]);
+
+           }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>16,//8 RETURN BY SUPPORTS
+              'ddesign' =>$currentdate,
+              'instress' =>'',
+              'insupports' =>'',
+              'inmaterials' =>'',
+              'inlead' =>'',
+              'iniso' =>'',
+              'dstress' =>'',
+              'dsupports' =>'',
+              'dmaterials' =>'',
+              'dlead' =>'',
+              'diso' =>''
+                ]);
+
+
+              }
 
 
 
@@ -4165,11 +5054,31 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Materials',
+            'to' =>'With Comments',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
          $currentdate = date('d-m-Y'); // SE CREA REGISTRO DE FECHA
 
          // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+         $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -4200,6 +5109,26 @@ class IsoController extends Controller
               'dlead' =>'',
               'diso' =>''
                 ]);
+
+           }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>16,//9 RETURN BY MATERIAL
+              'ddesign' =>$currentdate,
+              'instress' =>'',
+              'insupports' =>'',
+              'inmaterials' =>'',
+              'inlead' =>'',
+              'iniso' =>'',
+              'dstress' =>'',
+              'dsupports' =>'',
+              'dmaterials' =>'',
+              'dlead' =>'',
+              'diso' =>''
+                ]);
+
+
+              }
 
 
 
@@ -4296,11 +5225,31 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'Issuer',
+            'to' =>'With Comments',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
          $currentdate = date('d-m-Y'); // SE CREA REGISTRO DE FECHA
 
          // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+         $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -4331,6 +5280,26 @@ class IsoController extends Controller
               'dlead' =>'',
               'diso' =>''
                 ]);
+
+           }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>16,//10 RETURN BY LEAD
+              'ddesign' =>$currentdate,
+              'instress' =>'',
+              'insupports' =>'',
+              'inmaterials' =>'',
+              'inlead' =>'',
+              'iniso' =>'',
+              'dstress' =>'',
+              'dsupports' =>'',
+              'dmaterials' =>'',
+              'dlead' =>'',
+              'diso' =>''
+                ]);
+
+
+              }
 
 
 
@@ -4462,6 +5431,30 @@ class IsoController extends Controller
                            'user' =>Auth::user()->name,            
                            ]);
 
+                          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+                          Misoctrl::where('filename',$filename)->update([
+                           'requested' =>0, //YA NO ES REQUERIDA
+                           'spo' =>$spo,
+                           'sit' =>$sit,
+                           'from' =>'IsoController',
+                           'to' => $trname.' (D)',
+                           'comments' =>$comments,
+                           'user' =>Auth::user()->name,            
+                           ]);
+
+                          $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+
+                         Misoctrl::create([
+                                'filename' =>$issuedfilename.".pdf",
+                                'isoid' =>$isoid[0]->isoid,
+                                'comments' =>'From IsoController', //NEW
+                                'spo' =>$spo,
+                                'sit' =>$sit,
+                                 ]);
+
+
+
                       
                 }else{
 
@@ -4500,9 +5493,29 @@ class IsoController extends Controller
                   'user' =>Auth::user()->name,
                    ]);
 
+                   //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+                  'revision' =>$revision,
+                  'spo' =>$spo,
+                  'sit' =>$sit,
+                  'requested' =>$requestbydesign,
+                  'requestedlead' =>$requestbylead,
+                  'from' =>'IsoController',
+                  'to' =>'With Comments',
+                  'comments' =>$comments,
+                  'user' =>Auth::user()->name,
+                   ]);
+
                   // PARA ASIGNAR PROGRESO
 
-                    $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+         $progress = env('APP_PROGRESS');
+
+             if ($progress==1){
+
+                    $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+                    $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                      if ($ifc==1){
 
@@ -4524,8 +5537,15 @@ class IsoController extends Controller
                   'progressmax' =>$progressmax[0]->max,             
                    ]);
 
+                  }else{
+
+                 Disoctrl::where('filename',$filename)->update([
+                  'isostatus_id' =>16,//RETURN BY ISO           
+                   ]);
+
+
                   }
-                  //*************//
+                      //*************//
 
         
 
@@ -4551,6 +5571,7 @@ class IsoController extends Controller
         return redirect('iso')->with('success','SUCCESS! '.$filename.' has been sent to Design with comments!');
 
     }
+  }
 
     public function rejectfromiso2(Request $request) //SOLO PARA MIDOR
     {
@@ -4665,6 +5686,19 @@ class IsoController extends Controller
                            'user' =>Auth::user()->name,            
                            ]);
 
+                         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+                         Misoctrl::where('filename',$filename)->update([
+                                      'filename' =>$issuedfilename.".pdf",
+                                      'requested' =>0, //YA NO ES REQUERIDA
+                                       'spo' =>$spo,
+                                       'sit' =>$sit,
+                                       'from' =>'IsoController',
+                                       'to' => $trname.' (D)',
+                                       'comments' =>$comments,
+                                       'user' =>Auth::user()->name,            
+                                       ]);
+
                       
                 }elseif ($tray==0){
 
@@ -4682,7 +5716,7 @@ class IsoController extends Controller
 
                   // PARA ASIGNAR PROGRESO
 
-                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                     //  if ($ifc==1){
 
@@ -4721,7 +5755,7 @@ class IsoController extends Controller
 
                   // PARA ASIGNAR PROGRESO
 
-                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                     //  if ($ifc==1){
 
@@ -4761,7 +5795,7 @@ class IsoController extends Controller
 
                   // PARA ASIGNAR PROGRESO
 
-                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                     //  if ($ifc==1){
 
@@ -4802,7 +5836,7 @@ class IsoController extends Controller
 
                   // PARA ASIGNAR PROGRESO
 
-                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                     //  if ($ifc==1){
 
@@ -4843,7 +5877,7 @@ class IsoController extends Controller
 
                   // PARA ASIGNAR PROGRESO
 
-                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                     //  if ($ifc==1){
 
@@ -4873,6 +5907,21 @@ class IsoController extends Controller
                   
                 Hisoctrl::create([
                   'filename' =>$filename,
+                  'revision' =>$revision,
+                  'spo' =>$spo,
+                  'sit' =>$sit,
+                  'requested' =>$requestbydesign,
+                  'requestedlead' =>$requestbylead,
+                  'from' =>'IsoController',
+                  'to' =>$nametray,
+                  'comments' =>$comments,
+                  'user' =>Auth::user()->name,
+                   ]);  
+
+                    //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+               'filename' =>$filename,
                   'revision' =>$revision,
                   'spo' =>$spo,
                   'sit' =>$sit,
@@ -4990,6 +6039,28 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+             //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+            Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$requested[0]->revision,
+            'tie' =>$requested[0]->tie,
+            'spo' =>$req,
+            'sit' =>$requested[0]->sit,
+            'requested' =>$requested[0]->requestbydesign,
+            'requestedlead' =>$requested[0]->requestbylead,
+            'issued' =>$requested[0]->issued,
+            'deleted' =>$requested[0]->deleted,
+            'claimed' =>$requested[0]->claimed,
+            'verifydesign' =>$requested[0]->verifydesign,
+            'verifystress' =>$requested[0]->verifystress,
+            'verifysupports' =>$requested[0]->verifysupports,
+            'from' =>$from,
+            'to' =>$to,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
 
             return back();
     }
@@ -5030,9 +6101,33 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+            Misoctrl::where('filename',$filename)->update([
+            'filename' =>$filename,
+            'revision' =>$requested[0]->revision,
+            'tie' =>$requested[0]->tie,
+            'spo' =>$requested[0]->spo,
+            'sit' =>$req,
+            'requested' =>$requested[0]->requestbydesign,
+            'requestedlead' =>$requested[0]->requestbylead,
+            'issued' =>$requested[0]->issued,
+            'deleted' =>$requested[0]->deleted,
+            'claimed' =>$requested[0]->claimed,
+            'verifydesign' =>$requested[0]->verifydesign,
+            'verifystress' =>$requested[0]->verifystress,
+            'verifysupports' =>$requested[0]->verifysupports,
+            'from' =>$from,
+            'to' =>$to,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+
+
              // PARA ASIGNAR PROGRESO
 
-              // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+              // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
               //  if ($ifc==1){
 
@@ -5074,6 +6169,7 @@ class IsoController extends Controller
             $requested = DB::select("SELECT max(id) as id FROM hisoctrls WHERE filename='".$filename."'");
             
             DB::table('hisoctrls')->where('id', $requested[0]->id)->update(array('requested' => $req));
+            DB::table('misoctrls')->where('filename', $filename)->update(array('requested' => $req));
 
             return back();
     }
@@ -5110,6 +6206,28 @@ class IsoController extends Controller
             if ($del==1){$comments='DeletedLE';}else{$comments='Cancel Delete';}
             Hisoctrl::create([
             'filename' =>$filename,
+            'revision' =>$requested[0]->revision,
+            'tie' =>$requested[0]->tie,
+            'spo' =>$requested[0]->spo,
+            'sit' =>$requested[0]->sit,
+            'requested' =>$requested[0]->requestbydesign,
+            'requestedlead' =>$requested[0]->requestbylead,
+            'issued' =>$requested[0]->issued,
+            'deleted' =>$del,
+            'claimed' =>$requested[0]->claimed,
+            'verifydesign' =>$requested[0]->verifydesign,
+            'verifystress' =>$requested[0]->verifystress,
+            'verifysupports' =>$requested[0]->verifysupports,
+            'from' =>$requested[0]->from,
+            'to' =>$requested[0]->to,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+             //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+            Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
             'revision' =>$requested[0]->revision,
             'tie' =>$requested[0]->tie,
             'spo' =>$requested[0]->spo,
@@ -5182,6 +6300,28 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+            Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$requested[0]->revision,
+            'tie' =>$requested[0]->tie,
+            'spo' =>$requested[0]->spo,
+            'sit' =>$requested[0]->sit,
+            'requested' =>$requested[0]->requestbydesign,
+            'requestedlead' =>$requested[0]->requestbylead,
+            'issued' =>$requested[0]->issued,
+            'deleted' =>$requested[0]->deleted,
+            'claimed' =>$requested[0]->claimed,
+            'verifydesign' =>$verify,
+            'verifystress' =>$requested[0]->verifystress,
+            'verifysupports' =>$requested[0]->verifysupports,
+            'from' =>$from,
+            'to' =>$to,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
             $isostatus = DB::select("SELECT id FROM disoctrls WHERE filename='".$filename."'");
 
             
@@ -5189,7 +6329,12 @@ class IsoController extends Controller
 
                     // PARA ASIGNAR PROGRESO
 
-                        $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+                    $progress = env('APP_PROGRESS');
+
+                     if ($progress==1){
+
+                        $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+                        $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                          if ($ifc==1){
 
@@ -5206,11 +6351,23 @@ class IsoController extends Controller
 
                     DB::table('disoctrls')->where('id', $isostatus[0]->id)->update(array('isostatus_id' => $isostatusid,'progress' =>$progress[0]->value,'progressreal' =>$progress[0]->value,'progressmax' =>$progressmax[0]->max));
 
+                      }else{
+
+                       DB::table('disoctrls')->where('id', $isostatus[0]->id)->update(array('isostatus_id' => $isostatusid));
+
+
+                      }
+
             }elseif ($verify == 0){
 
                     // PARA ASIGNAR PROGRESO
 
-                        $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+               $progress = env('APP_PROGRESS');
+
+                     if ($progress==1){
+
+                        $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+                        $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                          if ($ifc==1){
 
@@ -5226,6 +6383,13 @@ class IsoController extends Controller
                       // FIN PARA ASIGNAR PROGRESO
 
                     DB::table('disoctrls')->where('id', $isostatus[0]->id)->update(array('isostatus_id' => $isostatusid,'progressreal' =>$progress[0]->value,'progressmax' =>$progressmax[0]->max));
+
+                     }else{
+
+                       DB::table('disoctrls')->where('id', $isostatus[0]->id)->update(array('isostatus_id' => $isostatusid));
+
+
+                      }
             }
 
             return back();
@@ -5240,6 +6404,28 @@ class IsoController extends Controller
             if ($verify == 1){$isostatusid=18;$from='Stress';$to='LDG Stress';$comments='VerifyST';}else{$isostatusid=2;$from='Stress';$to='Stress';$comments='Cancel Verify';} // Isostatus entre LDG Stress y Stress
 
              Hisoctrl::create([
+            'filename' =>$filename,
+            'revision' =>$requested[0]->revision,
+            'tie' =>$requested[0]->tie,
+            'spo' =>$requested[0]->spo,
+            'sit' =>$requested[0]->sit,
+            'requested' =>$requested[0]->requestbydesign,
+            'requestedlead' =>$requested[0]->requestbylead,
+            'issued' =>$requested[0]->issued,
+            'deleted' =>$requested[0]->deleted,
+            'claimed' =>$requested[0]->claimed,
+            'verifydesign' =>$requested[0]->verifydesign,
+            'verifystress' =>$verify,
+            'verifysupports' =>$requested[0]->verifysupports,
+            'from' =>$from,
+            'to' =>$to,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+              //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+            Misoctrl::where('filename',$filename)->update([
             'filename' =>$filename,
             'revision' =>$requested[0]->revision,
             'tie' =>$requested[0]->tie,
@@ -5276,6 +6462,28 @@ class IsoController extends Controller
 
               Hisoctrl::create([
             'filename' =>$filename,
+            'revision' =>$requested[0]->revision,
+            'tie' =>$requested[0]->tie,
+            'spo' =>$requested[0]->spo,
+            'sit' =>$requested[0]->sit,
+            'requested' =>$requested[0]->requestbydesign,
+            'requestedlead' =>$requested[0]->requestbylead,
+            'issued' =>$requested[0]->issued,
+            'deleted' =>$requested[0]->deleted,
+            'claimed' =>$requested[0]->claimed,
+            'verifydesign' =>$requested[0]->verifydesign,
+            'verifystress' =>$requested[0]->verifystress,
+            'verifysupports' =>$verify,
+            'from' =>$from,
+            'to' =>$to,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+                //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+            Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
             'revision' =>$requested[0]->revision,
             'tie' =>$requested[0]->tie,
             'spo' =>$requested[0]->spo,
@@ -5331,6 +6539,29 @@ class IsoController extends Controller
             'comments' =>$comments,
             'user' =>Auth::user()->name,
              ]);
+
+                //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+            Misoctrl::where('filename',$filename)->update([
+            'filename' =>$filename,
+            'revision' =>$requested[0]->revision,
+            'tie' =>$requested[0]->tie,
+            'spo' =>$requested[0]->spo,
+            'sit' =>$requested[0]->sit,
+            'requested' =>$requested[0]->requestbydesign,
+            'requestedlead' =>$requested[0]->requestbylead,
+            'issued' =>$requested[0]->issued,
+            'deleted' =>$requested[0]->deleted,
+            'claimed' =>$claim,
+            'verifydesign' =>$requested[0]->verifydesign,
+            'verifystress' =>$requested[0]->verifystress,
+            'verifysupports' =>$requested[0]->verifysupports,
+            'fromldgsupports' =>$requested[0]->fromldgsupports,
+            'from' =>Auth::user()->name,
+            'to' =>$to,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]); 
 
             return back();
     }
@@ -5416,6 +6647,26 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'verifydesign' =>$verifydesign,
+            'verifystress' =>$verifystress,
+            'verifysupports' =>$verifysupports,
+            'from' =>'LDG Design',
+            'to' =>'Materials',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+         
+
 
          // SE CREA REGISTRO DE FECHA
 
@@ -5433,7 +6684,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+                     if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -5458,6 +6714,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'inmaterials' =>$currentdate
                 ]);
+
+             }else{
+
+               Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>4,//MATERIALS
+              'ddesign' =>$currentdate,
+              'inmaterials' =>$currentdate
+                ]);
+
+
+            }
 
 
 
@@ -5538,6 +6805,24 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'verifydesign' =>$verifydesign,
+            'verifystress' =>$verifystress,
+            'verifysupports' =>$verifysupports,
+            'from' =>'LDG Design',
+            'to' =>'Stress',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
 
          // SE CREA REGISTRO DE FECHA
 
@@ -5555,7 +6840,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+                     if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -5580,6 +6870,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'inmaterials' =>$currentdate
                 ]);
+
+             }else{
+
+               Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>2,//STRESS
+              'ddesign' =>$currentdate,
+              'inmaterials' =>$currentdate
+                ]);
+
+
+            }
 
 
 
@@ -5660,6 +6961,24 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+              'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'verifydesign' =>$verifydesign,
+            'verifystress' =>$verifystress,
+            'verifysupports' =>$verifysupports,
+            'from' =>'LDG Design',
+            'to' =>'Supports',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
 
          // SE CREA REGISTRO DE FECHA
 
@@ -5677,7 +6996,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+                     if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -5702,6 +7026,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'inmaterials' =>$currentdate
                 ]);
+
+             }else{
+
+                Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>3,//SUPPORTS
+              'ddesign' =>$currentdate,
+              'inmaterials' =>$currentdate
+                ]);
+
+
+            }
 
 
 
@@ -5743,6 +7078,21 @@ class IsoController extends Controller
 
 
          Hisoctrl::create([
+            'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'LDG Design',
+            'to' =>'Design',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
             'filename' =>$filename,
             'revision' =>$revision,
             'spo' =>$spo,
@@ -5853,6 +7203,23 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+          Misoctrl::where('filename',$filename)->update([
+           'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'verifydesign' =>$verifydesign,
+            'verifystress' =>$verifystress,
+            'verifysupports' =>$verifysupports,
+            'from' =>'LDG Stress',
+            'to' =>'Materials',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
 
          // SE CREA REGISTRO DE FECHA
 
@@ -5870,7 +7237,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+                     if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -5895,6 +7267,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'inmaterials' =>$currentdate
                 ]);
+
+                 }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>4,//MATERIALS
+              'ddesign' =>$currentdate,
+              'inmaterials' =>$currentdate
+                ]);
+
+
+            }
 
 
 
@@ -5936,6 +7319,20 @@ class IsoController extends Controller
 
 
          Hisoctrl::create([
+            'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'LDG Stress',
+            'to' =>'Stress',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+          Misoctrl::where('filename',$filename)->update([
             'filename' =>$filename,
             'revision' =>$revision,
             'spo' =>$spo,
@@ -6032,6 +7429,23 @@ class IsoController extends Controller
 
          Hisoctrl::create([
             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'verifydesign' =>$verifydesign,
+            'verifystress' =>$verifystress,
+            'verifysupports' =>1, // Directo de LDG Stress LDG Supports
+            'from' =>'LDG Stress',
+            'to' =>'With Comments',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+         Misoctrl::where('filename',$filename)->update([
+           'filename' =>$filename,
             'revision' =>$revision,
             'spo' =>$spo,
             'sit' =>$sit,
@@ -6165,11 +7579,33 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+         Misoctrl::where('filename',$filename)->update([
+           'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'verifydesign' =>$verifydesign,
+            'verifystress' =>$verifystress,
+            'verifysupports' =>1, // Directo de LDG Stress LDG Supports
+            'from' =>'LDG Stress',
+            'to' =>'LDG Supports',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
             $currentdate = date('d-m-Y'); // SE CREA REGISTRO DE FECHA
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+                     if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -6202,6 +7638,25 @@ class IsoController extends Controller
               'diso' =>''
 
                 ]);
+
+                }else{
+
+               Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>19,// LDG Supports
+              'ddesign' =>$currentdate,
+              'instress' =>'',
+              'insupports' =>'',
+              'inmaterials' =>'',
+              'inlead' =>'',
+              'iniso' =>'',
+              'dstress' =>'',
+              'dsupports' =>'',
+              'dmaterials' =>'',
+              'dlead' =>'',
+              'diso' =>''
+              ]);
+
+            }
 
 
 
@@ -6283,6 +7738,23 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+         Misoctrl::where('filename',$filename)->update([
+           'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'verifydesign' =>$verifydesign,
+            'verifystress' =>$verifystress,
+            'verifysupports' =>$verifysupports,
+            'from' =>'LDG Supports',
+            'to' =>'Materials',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
 
          // SE CREA REGISTRO DE FECHA
 
@@ -6300,7 +7772,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+                     if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -6325,6 +7802,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'inmaterials' =>$currentdate
                 ]);
+
+               }else{
+
+               Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>4,//MATERIALS
+              'ddesign' =>$currentdate,
+              'inmaterials' =>$currentdate
+                ]);
+
+
+            }
 
 
 
@@ -6408,6 +7896,25 @@ class IsoController extends Controller
             'user' =>Auth::user()->name,
              ]);
 
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+         Misoctrl::where('filename',$filename)->update([
+          'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'verifydesign' => $verifydesign,
+            'verifystress' => 1, // Directo de LDG Supports a LDG Stress
+            'verifysupports' =>$verifysupports,
+            'issued' =>$verifysupports,
+            'fromldgsupports' =>1,
+            'from' =>'LDG Supports',
+            'to' =>'LDG Stress',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
 
          // SE CREA REGISTRO DE FECHA
 
@@ -6425,7 +7932,12 @@ class IsoController extends Controller
 
             // PARA ASIGNAR PROGRESO
 
-              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$afilename[0]."'");
+             $progress = env('APP_PROGRESS');
+
+                     if ($progress==1){
+
+              $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+              $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                if ($ifc==1){
 
@@ -6448,6 +7960,17 @@ class IsoController extends Controller
               'ddesign' =>$currentdate,
               'instress' =>$currentdate
                 ]);
+
+              }else{
+
+              Disoctrl::where('filename',$filename)->update([
+              'isostatus_id' =>18,//LDG STRESS
+              'ddesign' =>$currentdate,
+              'instress' =>$currentdate
+                ]);
+
+
+            }
 
 
 
@@ -6500,6 +8023,22 @@ class IsoController extends Controller
             'comments' =>$comments,
             'user' =>Auth::user()->name,
              ]);
+
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+         Misoctrl::where('filename',$filename)->update([
+          'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'from' =>'LDG Supports',
+            'to' =>'Supports',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+
 
             $currentdate = date('d-m-Y'); // SE CREA REGISTRO DE FECHA
 
@@ -6608,6 +8147,23 @@ class IsoController extends Controller
 
          Hisoctrl::create([
             'filename' =>$filename,
+            'revision' =>$revision,
+            'spo' =>$spo,
+            'sit' =>$sit,
+            'requested' =>$requestbydesign,
+            'requestedlead' =>$requestbylead,
+            'verifydesign' =>$verifydesign,
+            'verifystress' =>$verifystress,
+            'verifysupports' =>1, // Directo de LDG Stress LDG Supports
+            'from' =>'LDG Supports',
+            'to' =>'With Comments',
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+         Misoctrl::where('filename',$filename)->update([
+           'filename' =>$filename,
             'revision' =>$revision,
             'spo' =>$spo,
             'sit' =>$sit,
@@ -6924,6 +8480,26 @@ class IsoController extends Controller
                                         'user' =>Auth::user()->name,
                                          ]);
 
+                                     //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>$from,
+                                        'to' =>'Checked',
+                                        'comments' =>'Checked by '.$from,
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
                             }elseif ($pathfrom == 'ldgdesign'){
 
 
@@ -6933,6 +8509,26 @@ class IsoController extends Controller
 
                                     Hisoctrl::create([
                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>$from,
+                                        'to' =>'Checked',
+                                        'comments' =>'Checked by '.$from,
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
+                                      //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
                                         'revision' =>$revision,
                                         'requested' =>$requestbydesign,
                                         'requestedlead' =>$requestbylead,
@@ -6977,6 +8573,26 @@ class IsoController extends Controller
                                         'user' =>Auth::user()->name,
                                          ]);
 
+                                    //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>$from,
+                                        'to' =>'Checked',
+                                        'comments' =>'Checked by '.$from,
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
                             }elseif ($pathfrom == 'ldgstress'){
 
                               
@@ -6989,6 +8605,26 @@ class IsoController extends Controller
                                         'filename' =>$filename,
                                         'revision' =>$revision,
                                         'requested'=>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>$from,
+                                        'to' =>'Checked',
+                                        'comments' =>'Checked by '.$from,
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
+                                         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
                                         'requestedlead' =>$requestbylead,
                                         'tie' =>$tie,
                                         'spo' =>$spo,
@@ -7031,6 +8667,26 @@ class IsoController extends Controller
                                         'user' =>Auth::user()->name,
                                          ]);
 
+                                        //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>$from,
+                                        'to' =>'Checked',
+                                        'comments' =>'Checked by '.$from,
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
                             }elseif ($pathfrom == 'ldgsupports'){
 
 
@@ -7043,6 +8699,26 @@ class IsoController extends Controller
                                         'filename' =>$filename,
                                         'revision' =>$revision,
                                         'requested'=>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>$from,
+                                        'to' =>'Checked',
+                                        'comments' =>'Checked by '.$from,
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
+                                        //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
                                         'requestedlead' =>$requestbylead,
                                         'tie' =>$tie,
                                         'spo' =>$spo,
@@ -7082,7 +8758,27 @@ class IsoController extends Controller
                                         'to' =>'Checked',
                                         'comments' =>'Checked by '.$from,
                                         'user' =>Auth::user()->name,
-                                         ]);            
+                                         ]); 
+
+                                         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>$from,
+                                        'to' =>'Checked',
+                                        'comments' =>'Checked by '.$from,
+                                        'user' =>Auth::user()->name,
+                                         ]);           
                                 
                             }elseif ($pathfrom == 'materials'){
 
@@ -7096,6 +8792,26 @@ class IsoController extends Controller
                                         'filename' =>$filename,
                                         'revision' =>$revision,
                                         'requested'=>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>$from,
+                                        'to' =>'Checked',
+                                        'comments' =>'Checked by '.$from,
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
+                                        //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
                                         'requestedlead' =>$requestbylead,
                                         'tie' =>$tie,
                                         'spo' =>$spo,
@@ -7127,6 +8843,26 @@ class IsoController extends Controller
                                         'spo' =>$spo,
                                         'sit' =>$sit,
                                         'issued' =>1,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>$from,
+                                        'to' =>'Checked',
+                                        'comments' =>'Checked by '.$from,
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
+                                        //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
                                         'deleted' =>$deleted,
                                         'verifydesign' =>$verifydesign,
                                         'verifystress' =>$verifystress,
@@ -7279,6 +9015,26 @@ class IsoController extends Controller
                                         'user' =>Auth::user()->name,
                                          ]);
 
+                                    //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>'Design',
+                                        'to' =>'Updated',
+                                        'comments' =>'Updated',
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
                             }elseif ($pathfrom == 'ldgdesign'){
 
                                 copy ("../public/storage/isoctrl/design/".$filename,"../public/storage/isoctrl/design/".$filename."_".$date[0].$date[1].$date[2]."_".$time[0].$time[1].$time[2]);
@@ -7301,6 +9057,26 @@ class IsoController extends Controller
 
 
                                     Hisoctrl::create([
+                                        'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested' =>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>'LDG Design',
+                                        'to' =>'Updated',
+                                        'comments' =>'Updated',
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
+                                    //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
                                         'filename' =>$filename,
                                         'revision' =>$revision,
                                         'requested' =>$requestbydesign,
@@ -7358,6 +9134,28 @@ class IsoController extends Controller
                                         'user' =>Auth::user()->name,
                                          ]);
 
+                                     //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                        'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested'=>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>'Stress',
+                                        'to' =>'Updated',
+                                        'comments' =>'Updated',
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
+
+
                             }elseif ($pathfrom == 'ldgstress'){
 
                                 copy ("../public/storage/isoctrl/stress/".$filename,"../public/storage/isoctrl/stress/".$filename."_".$date[0].$date[1].$date[2]."_".$time[0].$time[1].$time[2]);
@@ -7396,7 +9194,30 @@ class IsoController extends Controller
                                         'to' =>'Updated',
                                         'comments' =>'Updated',
                                         'user' =>Auth::user()->name,
-                                         ]);        
+                                         ]); 
+
+                                          //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested'=>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'fromldgsupports' =>$check[0]->fromldgsupports,
+                                        'from' =>'LDG Stress',
+                                        'to' =>'Updated',
+                                        'comments' =>'Updated',
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
+
 
                             }elseif ($pathfrom == 'supports'){
 
@@ -7419,6 +9240,26 @@ class IsoController extends Controller
                                 if (!is_null($request->file('cii'))){ $request->file('cii')->storeAS('public/isoctrl/supports/attach',$afilename[0].".cii"); }
 
                                         Hisoctrl::create([
+                                        'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested'=>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>'Supports',
+                                        'to' =>'Updated',
+                                        'comments' =>'Updated',
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
+                                           //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
                                         'filename' =>$filename,
                                         'revision' =>$revision,
                                         'requested'=>$requestbydesign,
@@ -7476,6 +9317,26 @@ class IsoController extends Controller
                                         'user' =>Auth::user()->name,
                                          ]);
 
+                                           //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                        'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested'=>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>'LDG Supports',
+                                        'to' =>'Updated',
+                                        'comments' =>'Updated',
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
                             }elseif ($pathfrom == 'lead'){
 
                                 copy ("../public/storage/isoctrl/lead/".$filename,"../public/storage/isoctrl/lead/".$filename."_".$date[0].$date[1].$date[2]."_".$time[0].$time[1].$time[2]);
@@ -7513,7 +9374,27 @@ class IsoController extends Controller
                                         'to' =>'Updated',
                                         'comments' =>'Updated',
                                         'user' =>Auth::user()->name,
-                                         ]);            
+                                         ]); 
+
+                                            //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                          'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested'=>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>'Issuer',
+                                        'to' =>'Updated',
+                                        'comments' =>'Updated',
+                                        'user' =>Auth::user()->name,
+                                         ]);          
                                 
                             }elseif ($pathfrom == 'materials'){
 
@@ -7554,6 +9435,26 @@ class IsoController extends Controller
                                         'user' =>Auth::user()->name,
                                          ]);
 
+                                           //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested'=>$requestbydesign,
+                                        'requestedlead' =>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>$issued,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>'Materials',
+                                        'to' =>'Updated',
+                                        'comments' =>'Updated',
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
                             }else{
 
                                 copy ("../public/storage/isoctrl/iso/".$filename,"../public/storage/isoctrl/iso/".$filename."_".$date[0].$date[1].$date[2]."_".$time[0].$time[1].$time[2]);
@@ -7576,6 +9477,26 @@ class IsoController extends Controller
 
                                         Hisoctrl::create([
                                         'filename' =>$filename,
+                                        'revision' =>$revision,
+                                        'requested'=>$requestbydesign,
+                                        'requestedlead'=>$requestbylead,
+                                        'tie' =>$tie,
+                                        'spo' =>$spo,
+                                        'sit' =>$sit,
+                                        'issued' =>1,
+                                        'deleted' =>$deleted,
+                                        'verifydesign' =>$verifydesign,
+                                        'verifystress' =>$verifystress,
+                                        'verifysupports' =>$verifysupports,
+                                        'from' =>'Iso',
+                                        'to' =>'Updated',
+                                        'comments' =>'Updated',
+                                        'user' =>Auth::user()->name,
+                                         ]);
+
+                                           //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+                                       Misoctrl::where('filename',$filename)->update([
+                                       'filename' =>$filename,
                                         'revision' =>$revision,
                                         'requested'=>$requestbydesign,
                                         'requestedlead'=>$requestbylead,
