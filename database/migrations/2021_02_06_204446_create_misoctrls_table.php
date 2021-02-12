@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateHisoctrlsTable extends Migration
+class CreateMisoctrlsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,14 @@ class CreateHisoctrlsTable extends Migration
      */
     public function up()
     {
-        Schema::create('hisoctrls', function (Blueprint $table) {
+        Schema::create('misoctrls', function (Blueprint $table) {
             $table->increments('id');
             $table->string('filename');
-            $table->integer('revision');
-            $table->integer('tie');
-            $table->integer('spo');
-            $table->integer('sit');
+            $table->string('isoid');
+            $table->integer('revision');->nullable();
+            $table->integer('tie');->nullable();
+            $table->integer('spo');->nullable();
+            $table->integer('sit');->nullable();
             $table->boolean('requested')->nullable();
             $table->boolean('requestedlead')->nullable();
             $table->boolean('issued')->nullable();
@@ -29,10 +30,10 @@ class CreateHisoctrlsTable extends Migration
             $table->boolean('verifystress')->nullable();
             $table->boolean('verifysupports')->nullable();
             $table->boolean('fromldgsupports')->nullable();
-            $table->string('from');
-            $table->string('to');
-            $table->longText('comments');
-            $table->string('user');
+            $table->string('from');->nullable();
+            $table->string('to');->nullable();
+            $table->longText('comments');->nullable();
+            $table->string('user');->nullable();
             $table->timestamps();
             });
     }

@@ -2,7 +2,7 @@
 
 @else
     
-    <div class="modal fade" id="rejectfromisoModal" style="top:20%"; 
+    <div class="modal fade" id="rejectfromisoModal2" style="top:20%"; 
      tabindex="-1" role="dialog" 
      aria-labelledby="rejectfromisoModalLabel">
    <div class="row">

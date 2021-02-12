@@ -13,7 +13,8 @@
                       //if ((s.match(/RBD.*/)) || (s.match(/RBL.*/)) || (s.match(/Issued.*/)) || (s.match(/9565*/)) || (s.match(/8575*/)) || (s.match(/7595*/)) || (s.match(/MISSING*/)) || (s.match(/NO ACTIONS*/)) || (s.match(/DELETED*/)) || (s.match(/WAITING*/)) || (s.match(/BY:*/))) { // Si tiene request no se puede seleccionar
 
                         if ((s.match(/RBD.*/)) || (s.match(/RBL.*/)) || (s.match(/Issued.*/)) || (s.match(/MISSING*/)) || (s.match(/NO ACTIONS*/)) || (s.match(/DELETED*/)) || (s.match(/WAITING*/)) || (s.match(/CLAIMED*/))) { // Si tiene request no se puede seleccionar
-                        return '<input type="checkbox" name="filenames[]" value="' + $('<div/>').text(data).html() + '" disabled>';
+                        //return '<input type="checkbox" name="filenames[]" value="' + $('<div/>').text(data).html() + '" disabled>';
+                        return ''
                       }else{
                         return '<input type="checkbox" name="filenames[]" value="' + $('<div/>').text(data).html() + '">';
                       }

@@ -244,14 +244,14 @@ $(document).on('click', '.show-vcomments-modal', function() {
         $pdfspo= "../public/storage/isoctrl/iso/attach/".$afilename[0]."-PROC.pdf";
         $pdfsit= "../public/storage/isoctrl/iso/attach/".$afilename[0]."-INST.pdf";
 
-           $issued = DB::select("SELECT * FROM hisoctrls_temp WHERE id=(SELECT max(id) FROM hisoctrls_temp WHERE  filename LIKE '%".$afilename[0]."%')");
+              $issued = DB::select("SELECT * FROM misoctrls WHERE filename = '".$filename[$i]."'");
 
-           $requested = DB::select("SELECT * FROM hisoctrls_temp WHERE id=(SELECT max(id) FROM hisoctrls_temp WHERE  filename LIKE '%".$afilename[0]."%')"); // same query for request
+              $requested = DB::select("SELECT * FROM misoctrls WHERE filename = '".$filename[$i]."'"); // same query for request
 
                             
 
-          // $issued = DB::select("SELECT * FROM hisoctrls_temp WHERE filename='".$filename[$i]."'");
-          // $requested = DB::select("SELECT * FROM hisoctrls_temp WHERE filename='".$filename[$i]."'");
+          // $issued = DB::select("SELECT * FROM misoctrls WHERE filename='".$filename[$i]."'");
+          // $requested = DB::select("SELECT * FROM misoctrls WHERE filename='".$filename[$i]."'");
 
         if ($issued[0]->requested==1){ ?> <!-- solicitud diseño -->
 
@@ -264,6 +264,8 @@ $(document).on('click', '.show-vcomments-modal', function() {
               <a class="btn btn-xs btn-warning"><b>RBL</b></a>
           
             <?php } ?>
+
+            
 
 
          <?php echo "<a target='_blank' href='../public/storage/isoctrl/".$filename[$i]."'>". $filename[$i]."</a>"; ?></td> 
@@ -354,7 +356,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
             <?php if ($requested[0]->requested==1){ // PARA LAS EMITIDAS?>
 
-                <a class="reject-iso-modal btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-issued ="<?php echo $requested[0]->issued; ?>" data-to ="<?php echo $requested[0]->to; ?>" data-toggle="modal" data-target="#rejectfromisoModal">Required</a>
+                <a class="reject-iso-modal btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-issued ="<?php echo $requested[0]->issued; ?>" data-to ="<?php echo $requested[0]->to; ?>" data-toggle="modal" data-target="#rejectfromisoModal2">Required</a>
 
             <?php } ?> 
 
@@ -489,6 +491,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
     @extends('isoctrl.commentsfromiso')
     @extends('isoctrl.uploadfromdesign')
     @extends('isoctrl.rejectfromiso')
+    @extends('isoctrl.rejectfromiso2')
 
 
     <script src="{{ asset('js/selectall.js') }}"></script> <!-- select all -->

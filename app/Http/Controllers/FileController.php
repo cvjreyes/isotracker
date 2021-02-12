@@ -5,6 +5,7 @@ use Auth;
 
 use Illuminate\Http\Request;
 use App\Hisoctrl;
+use App\Misoctrl;
 use App\Disoctrl;
 use DB;
 
@@ -71,7 +72,7 @@ class FileController extends Controller
                   
                    }else{
 
-                if (($modeliso[0]->count)!=0){  //VALIDA SI EXISTE LINEA MODELADA    
+                //if (($modeliso[0]->count)!=0){  //VALIDA SI EXISTE LINEA MODELADA    
 
                     if ($fileNameExt=="pdf"){ // SE COPIA EL PDF EN RUTA PRINCIPAL Y SE CAMBIA EL NOMBRE EN ATTACH
 
@@ -87,7 +88,12 @@ class FileController extends Controller
 
                         // PARA ASIGNAR PROGRESO
 
-                          $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$fileNamePart[0]."'");
+                    $progress = env('APP_PROGRESS');
+
+                    if ($progress==1){
+                        
+                        $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$fileName."'");  
+                        $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$fileNamePart[0]."'");
 
                             if ($ifc==1){
 
@@ -100,11 +106,14 @@ class FileController extends Controller
                                 $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
        
                               }
+                    }
 
                         //VALIDA EXISTENCIA
 
                         if (($exist[0]->count)==0){
 
+                            if ($progress=1){
+                            
                             Disoctrl::create([
                                 'filename' =>$fileName,
                                 'progress' =>$progress[0]->value,
@@ -112,9 +121,28 @@ class FileController extends Controller
                                 'progressmax' =>$progressmax[0]->max,
                                 'isostatus_id' =>1, //NEW
                                  ]);
+                            
+                            }else{
+
+                                Disoctrl::create([
+                                    'filename' =>$fileName,
+                                    'isostatus_id' =>1, //NEW
+                                     ]);
+
+                            }
+                            
 
                             Hisoctrl::create([
                                 'filename' =>$fileName,
+                                'comments' =>'Uploaded',//NEW
+                                'from' =>'Design',
+                                'to' =>'Design',
+                                'user' =>Auth::user()->name,
+                                 ]);
+
+                            Misoctrl::create([
+                                'filename' =>$fileName,
+                                'isoid' =>$fileNamePart[0],
                                 'comments' =>'Uploaded',//NEW
                                 'from' =>'Design',
                                 'to' =>'Design',
@@ -140,7 +168,7 @@ class FileController extends Controller
 
                     }
 
-                   }// END VALIDA EXISTENCIA DE LINEA MODELADA
+                   //}// END VALIDA EXISTENCIA DE LINEA MODELADA
 
                    }
             }
