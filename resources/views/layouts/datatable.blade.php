@@ -259,7 +259,7 @@
                               <!-- <li id="s00" style="font-size: 13px"><a href=""><strong>000000-PROJECT</strong></a></li> -->
                               <!-- <li id="s00" style="font-size: 13px"><a href=""><strong>PROJECT LOGO</strong></a></li> -->
                                <li id="s00" style="font-size: 13px"><a href=""><strong><?php echo env('APP_NAMEPROJ') ?></strong></a></li> 
-                               <li id="s00"><a href=""><img src="{{ asset('images/iquoxe_logo.png') }}" style="width:65px;"></a></li>
+                               <li id="s00"><a href=""><img src="{{ asset('images/client-logo.png') }}" style="width:65px;"></a></li>
                             
                              
                          <li style="font-size: 13px" class="dropdown">

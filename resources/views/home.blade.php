@@ -302,7 +302,7 @@
 
 <!--  PROGRESO POR AREAS EQUIPMENT -->
 
-              <button class="accordion btn btn-lg btn-default" style="padding: 2px 8px;font-size: 14px;">by Areas</button>
+              <!-- <button class="accordion btn btn-lg btn-default" style="padding: 2px 8px;font-size: 14px;">by Areas</button> -->
               <div class="panelaarea">
                 <br>
 
