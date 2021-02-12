@@ -2540,8 +2540,6 @@ class IsoController extends Controller
 
                          // PARA ASIGNAR PROGRESO
 
-                        $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$newfilename.".pdf'"); 
-
 
                         $progress = env('APP_PROGRESS');
 
@@ -5391,7 +5389,12 @@ class IsoController extends Controller
 
                          // PARA ASIGNAR PROGRESO
 
-                            $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$issuedfilename."'");
+                         $progress = env('APP_PROGRESS');
+
+                         if ($progress==1){
+            
+                          $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
+                          $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
                              if ($ifc==1){
 
@@ -5413,6 +5416,15 @@ class IsoController extends Controller
                                 'progressreal' =>$progress[0]->value,
                                 'progressmax' =>$progressmax[0]->max,
                                  ]);
+
+                         }else{
+
+                          Disoctrl::create([
+                            'filename' =>$issuedfilename.".pdf",
+                            'isostatus_id' =>1, //NEW
+                             ]);
+
+                         }
 
                          Hisoctrl::create([
                                 'filename' =>$issuedfilename.".pdf",
