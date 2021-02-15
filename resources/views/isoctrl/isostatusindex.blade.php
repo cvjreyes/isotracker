@@ -139,6 +139,7 @@ $(document).on('click', '.edit-isostatus-modal', function() {
                 <button onclick="location.href='{{ url('exportisostatuscountbytypeline') }}'" type="button" class="btn btn-success" style="width:6%"><b>Count</b></button>&nbsp;&nbsp;
                 
                 <button onclick="location.href='{{ url('exportissued') }}'" type="button" class="btn btn-success" style="width:6%"><b>Issuedlist</b></button>&nbsp;&nbsp;
+                <button onclick="location.href='{{ url('exportstatussitspo') }}'" type="button" class="btn btn-success" style="width:6%"><b>SPO/SIT</b></button>&nbsp;&nbsp;
                 <?php if (auth()->user()->hasRole('SupportsAdmin') OR auth()->user()->hasRole('SupportsLead')){ ?><button onclick="location.href='{{ url('exportissuedwithnotsupports') }}'" type="button" class="btn btn-success" style="width:6%"><b>IssuedPsup</b></button>&nbsp;&nbsp;<?php } ?>
                 <br>
             </div>

@@ -109,6 +109,7 @@ Route::get('exportisostatuswithdatesreport', 'IsoExportController@exportisostatu
 Route::get('exportisostatusprogress', 'IsoExportController@exportisostatusprogress');
 Route::get('exportisostatuscountbytypeline', 'IsoExportController@exportisostatuscountbytypeline');
 Route::get('exportissuedwithnotsupports', 'IsoExportController@exportissuedwithnotsupports');
+Route::get('exportstatussitspo', 'IsoExportController@exportstatussitspo');
 
 
 

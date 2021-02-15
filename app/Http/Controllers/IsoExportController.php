@@ -510,4 +510,67 @@ class IsoExportController extends Controller{
             
             }
 
+            public function exportstatussitspo(){
+
+              Excel::create('IsoStatusSIT-SPO', function($excel) {
+  
+              $excel->sheet('IsoStatusSIT-SPO', function($sheet) {
+  
+                $isostatuss = DB::select("SELECT filename,spo,sit,updated_at FROM hisoctrls 
+                WHERE id IN (SELECT MAX(id) FROM hisoctrls GROUP BY filename) AND sit<>0 OR spo<>0 ORDER BY id DESC");
+
+  
+                 foreach ($isostatuss as $isostatus) {
+
+                  $sitstatus = $isostatus->sit;
+                  $spostatus = $isostatus->spo;
+  
+                  switch ( $sitstatus ) {
+                    case 0:
+                          $sitstatus='---';
+                          break;      
+                    case 1:
+                          $sitstatus='TO CHECK';
+                          break;
+                    case 2:
+                          $sitstatus='APPROVED';
+                          break;
+                    case 3:
+                          $sitstatus='REJECTED';
+                          break;
+                    }
+
+                  switch ( $spostatus ) {
+                      case 0:
+                            $spostatus='---';
+                            break;      
+                      case 1:
+                            $spostatus='TO CHECK';
+                            break;
+                      case 2:
+                            $spostatus='APPROVED';
+                            break;
+                      case 3:
+                            $spostatus='REJECTED';
+                            break;
+                      }
+  
+                      $row = [];
+                      $row['ISO_ID'] = $isostatus->filename;
+                      $row['PROCESS'] = $spostatus;
+                      $row['INSTRUMENTATION'] = $sitstatus;
+                      $row['UPDATED AT'] = $isostatus->updated_at;
+  
+                      
+                      $data[] = $row;
+                     
+                     }
+  
+                      $sheet->fromArray($data);
+  
+                  });
+  
+              })->export('xlsx');
+
     }
+  }
