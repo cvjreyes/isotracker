@@ -87,11 +87,11 @@
                     </button>
 
                     <!-- Branding Image -->
-                    <a class="navbar-brand" href="{{ url('/') }}">
+                    <a class="" href="{{ url('/') }}">
 
 
 
-                            <img src="{{ asset('images/tpfmc_logo.svg') }}" style="width:150px;padding-bottom: 0px;" >
+                            <img src="{{ asset('images/tpenr_logo.svg') }}" style="width:110px;padding-bottom: 0px;" >
 
                             
 

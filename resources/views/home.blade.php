@@ -9,13 +9,13 @@
 
 
 <!DOCTYPE html>
-<html style="background: url('images/refinery2.png') no-repeat center center fixed;
+<html style="background: url('images/refinery3.png') no-repeat center center fixed;
         width:100%;height:100%;
         background-size: cover;
         -moz-background-size: cover;
         -webkit-background-size: cover;
         -o-background-size: cover;">
-<div style="background: url('images/refinery2.png') no-repeat center center fixed;
+<div style="background: url('images/refinery3.png') no-repeat center center fixed;
         width:100%;height:100%;
         background-size: cover;
         -moz-background-size: cover;
