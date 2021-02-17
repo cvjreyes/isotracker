@@ -203,7 +203,7 @@ $(document).on('click', '.edit-isostatus-modal', function() {
                 </button>
              <button onclick="location.href='{{ url('hisoctrl') }}'" type="button" class="btn btn-info btn-lg" style="width:38%"><b>History</b>
                 </button>
-            <a onclick="location.href='{{ url('trash') }}'"class="" style="width:15%"><img src="{{ asset('images/recycle-icon.png') }}" style="width:40px" > <?php echo "<a target='_blank' class='btn btn-xs btn-danger' href='../public/storage/isoctrl/attach/".$afilename[0]."-PROC.pdf'>". "<b>".$deleted[0]->deleted."</b>"."</a>"; ?>
+            <a onclick="location.href='{{ url('trash') }}'"class="" style="width:15%"><img src="{{ asset('images/recycle-icon.png') }}" style="width:40px" > <?php echo "<a class='btn btn-xs btn-danger'>". "<b>".$deleted[0]->deleted."</b>"."</a>"; ?>
                 </a>
 
        </td> 
