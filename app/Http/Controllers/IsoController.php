@@ -75,9 +75,75 @@ class IsoController extends Controller
     public function trash()
     {
        
-        $filename = scandir("../public/storage/isoctrl/TRASH");
+      $filename_ds = scandir("../public/storage/isoctrl/design/TRASH"); // DESIGN
+      $filename_st = scandir("../public/storage/isoctrl/stress/TRASH");// STRESS
+      $filename_sp = scandir("../public/storage/isoctrl/supports/TRASH");// SUPPORTS
+      $filename_mt = scandir("../public/storage/isoctrl/materials/TRASH");// MATERIALS
 
-       return view('isoctrl.trash')->with('filenames', $filenames);
+      $n=0; // contador para cargar el array filename[]
+      $m=0; // contador para cargar el array filenames[] (valid)
+
+      for ($i=1; $i<count($filename_ds); $i++){
+       
+            $extension = pathinfo($filename_ds[$i], PATHINFO_EXTENSION);
+            if (($extension == 'pdf')) {
+
+              $filename[$n] = $filename_ds[$i];
+              $tray[$n] = 'design'; // para saber en que bandeja de encuentra
+              $n++;              
+
+            }
+
+          } //endfor DS
+
+      for ($i=1; $i<count($filename_st); $i++){
+       
+            $extension = pathinfo($filename_st[$i], PATHINFO_EXTENSION);
+            if (($extension == 'pdf')) {
+
+              $filename[$n] = $filename_st[$i];
+              $tray[$n] = 'stress'; // para saber en que bandeja de encuentra
+              $n++;                
+
+            }
+
+          } //endfor ST
+
+      for ($i=1; $i<count($filename_sp); $i++){
+       
+            $extension = pathinfo($filename_sp[$i], PATHINFO_EXTENSION);
+            if (($extension == 'pdf')) {
+
+              $filename[$n] = $filename_sp[$i];
+              $tray[$n] = 'supports'; // para saber en que bandeja de encuentra
+              $n++;                
+
+            }
+
+          } //endfor SP
+
+      for ($i=1; $i<count($filename_mt); $i++){
+       
+            $extension = pathinfo($filename_mt[$i], PATHINFO_EXTENSION);
+            if (($extension == 'pdf')) {
+
+              $filename[$n] = $filename_mt[$i];
+              $tray[$n] = 'materials'; // para saber en que bandeja de encuentra
+              $n++;                 
+
+            }
+
+          } //endfor MT
+
+      for ($i=0; $i<$n; $i++){
+
+        $filenames[$m] = $filename[$i];
+        $trays[$m] = $tray[$i]; // correspondiente bandeja por archivo
+        $m++;
+
+          }
+
+       return view('isoctrl.trash')->with('filenames', $filenames)->with('trays', $trays);
     }
 
     public function commontray()
@@ -6210,12 +6276,34 @@ class IsoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function delfromleadoriso($filename,$del)
+    public function delfromleadoriso($filename,$del,$tray)
     {
+
+      $afilename=explode(".", $filename);
+
+      
 
             $requested = DB::select("SELECT * FROM hisoctrls WHERE filename='".$filename."'"." ORDER BY id DESC LIMIT 1");
             
-            if ($del==1){$comments='DeletedLE';}else{$comments='Cancel Delete';}
+            if ($del==1){
+              $comments='DeletedLE';
+              rename ("../public/storage/isoctrl/".$tray."/".$filename,"../public/storage/isoctrl/".$tray."/TRASH/".$filename);
+              rename ("../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0]."-CL.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0]."-INST.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0]."-PROC.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/attach/".$afilename[0].".zip","../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0].".zip");
+
+            }else{
+              $comments='Cancel Delete';
+              rename ("../public/storage/isoctrl/".$tray."/TRASH/".$filename,"../public/storage/isoctrl/".$tray."/".$filename);
+              rename ("../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-CL.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-INST.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-PROC.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0].".zip","../public/storage/isoctrl/".$tray."/attach/".$afilename[0].".zip");
+            }
+
+
+
             Hisoctrl::create([
             'filename' =>$filename,
             'revision' =>$requested[0]->revision,

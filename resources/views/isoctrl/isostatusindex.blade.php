@@ -198,11 +198,13 @@ $(document).on('click', '.edit-isostatus-modal', function() {
     </center>
     <table style='width: 100%'>
         <td>
-             
+             <?php $deleted = DB::select("SELECT count(*) as deleted FROM misoctrls WHERE deleted=1");?>
              <button onclick="location.href='{{ url('isostatus') }}'" type="button" class="btn btn-primary btn-lg" style="width:38%"><b>Status</b>
                 </button>
              <button onclick="location.href='{{ url('hisoctrl') }}'" type="button" class="btn btn-info btn-lg" style="width:38%"><b>History</b>
                 </button>
+            <a onclick="location.href='{{ url('trash') }}'"class="" style="width:15%"><img src="{{ asset('images/recycle-icon.png') }}" style="width:40px" > <?php echo "<a target='_blank' class='btn btn-xs btn-danger' href='../public/storage/isoctrl/attach/".$afilename[0]."-PROC.pdf'>". "<b>".$deleted[0]->deleted."</b>"."</a>"; ?>
+                </a>
 
        </td> 
        <td style='width: 64%'>        
