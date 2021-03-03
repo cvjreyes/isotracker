@@ -29,6 +29,7 @@ Route::get('isoctrl/index', ['as'=>'isoctrl.index','uses'=>'IsoController@hisoct
 Route::get('/isostatus', 'IsoController@isostatusindex')->name('isostatus');
 Route::get('isoctrl/isostatusindex', ['as'=>'isoctrl.isostatusindex','uses'=>'IsoController@isostatus']); // for datatable
 Route::post('/jsvcomments', 'IsoController@jsvcomments')->name('jsvcomments');
+Route::post('/hjsvcomments', 'IsoController@hjsvcomments')->name('hjsvcomments');
 
 
 Route::post('sendfromdesignbulk','IsoController@sendfromdesignbulk')->name('sendfromdesignbulk');

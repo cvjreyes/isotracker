@@ -324,6 +324,14 @@ class IsoController extends Controller
 
     }
 
+    public function hjsvcomments(){
+
+
+      return view('isoctrl.hjsvcomments');
+
+
+  }
+
  
     public function sendtodesign($filename)
     {
