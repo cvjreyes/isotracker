@@ -400,7 +400,7 @@ echo $hoy; ?>
       <?php }else{ ?>
 
       <td><?php echo $issued[0]->from; ?></td>
-      <td><?php echo $issued[0]->created_at; ?></td> <!-- Se utiliza la variable $issued solo para aprovechar -->
+      <td><?php echo $issued[0]->updated_at; ?></td> <!-- Se utiliza la variable $issued solo para aprovechar -->
       
       <?php } ?>
 
