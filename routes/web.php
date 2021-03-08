@@ -111,6 +111,7 @@ Route::get('exportisostatusprogress', 'IsoExportController@exportisostatusprogre
 Route::get('exportisostatuscountbytypeline', 'IsoExportController@exportisostatuscountbytypeline');
 Route::get('exportissuedwithnotsupports', 'IsoExportController@exportissuedwithnotsupports');
 Route::get('exportstatussitspo', 'IsoExportController@exportstatussitspo');
+Route::get('isofornewrevision', 'IsoExportController@isofornewrevision');
 
 
 // NAVIS CONFIGURATION
