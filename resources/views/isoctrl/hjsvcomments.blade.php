@@ -4,7 +4,7 @@ if(isset($_POST["texto"]))
 
 
 
-    $comments = DB::select("SELECT * FROM misoctrls WHERE id="."'".$_POST["texto"]."'");
+    $comments = DB::select("SELECT * FROM hisoctrls WHERE id="."'".$_POST["texto"]."'");
 
 
         echo "<font size='5' color='#2579A9'><b>".$comments[0]->filename."</b></font>";

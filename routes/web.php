@@ -29,6 +29,7 @@ Route::get('isoctrl/index', ['as'=>'isoctrl.index','uses'=>'IsoController@hisoct
 Route::get('/isostatus', 'IsoController@isostatusindex')->name('isostatus');
 Route::get('isoctrl/isostatusindex', ['as'=>'isoctrl.isostatusindex','uses'=>'IsoController@isostatus']); // for datatable
 Route::post('/jsvcomments', 'IsoController@jsvcomments')->name('jsvcomments');
+Route::post('/hjsvcomments', 'IsoController@hjsvcomments')->name('hjsvcomments');
 
 
 Route::post('sendfromdesignbulk','IsoController@sendfromdesignbulk')->name('sendfromdesignbulk');
@@ -91,7 +92,7 @@ Route::post('rejectfromldgsupportstodesign','IsoController@rejectfromldgsupports
 
 // END VERIFICACIONES
 
-Route::get('delfromleadoriso/{filename}/{req}', ['as' => 'delfromleadoriso', 'uses' => 'IsoController@delfromleadoriso']);
+Route::get('delfromleadoriso/{filename}/{req}/{tray}', ['as' => 'delfromleadoriso', 'uses' => 'IsoController@delfromleadoriso']);
 Route::get('chktie/{filename}/{req}', ['as' => 'chktie', 'uses' => 'IsoController@chktie']);
 Route::get('chkspo/{filename}/{req}', ['as' => 'chkspo', 'uses' => 'IsoController@chkspo']);
 Route::get('chksit/{filename}/{req}', ['as' => 'chksit', 'uses' => 'IsoController@chksit']);
@@ -109,7 +110,7 @@ Route::get('exportisostatuswithdatesreport', 'IsoExportController@exportisostatu
 Route::get('exportisostatusprogress', 'IsoExportController@exportisostatusprogress');
 Route::get('exportisostatuscountbytypeline', 'IsoExportController@exportisostatuscountbytypeline');
 Route::get('exportissuedwithnotsupports', 'IsoExportController@exportissuedwithnotsupports');
-
+Route::get('exportstatussitspo', 'IsoExportController@exportstatussitspo');
 
 
 // NAVIS CONFIGURATION

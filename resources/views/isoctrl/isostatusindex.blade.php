@@ -139,6 +139,7 @@ $(document).on('click', '.edit-isostatus-modal', function() {
                 <button onclick="location.href='{{ url('exportisostatuscountbytypeline') }}'" type="button" class="btn btn-success" style="width:6%"><b>Count</b></button>&nbsp;&nbsp;
                 
                 <button onclick="location.href='{{ url('exportissued') }}'" type="button" class="btn btn-success" style="width:6%"><b>Issuedlist</b></button>&nbsp;&nbsp;
+                <button onclick="location.href='{{ url('exportstatussitspo') }}'" type="button" class="btn btn-success" style="width:6%"><b>SPO/SIT</b></button>&nbsp;&nbsp;
                 <?php if (auth()->user()->hasRole('SupportsAdmin') OR auth()->user()->hasRole('SupportsLead')){ ?><button onclick="location.href='{{ url('exportissuedwithnotsupports') }}'" type="button" class="btn btn-success" style="width:6%"><b>IssuedPsup</b></button>&nbsp;&nbsp;<?php } ?>
                 <br>
             </div>
@@ -197,11 +198,13 @@ $(document).on('click', '.edit-isostatus-modal', function() {
     </center>
     <table style='width: 100%'>
         <td>
-             
+             <?php $deleted = DB::select("SELECT count(*) as deleted FROM misoctrls WHERE deleted=1");?>
              <button onclick="location.href='{{ url('isostatus') }}'" type="button" class="btn btn-primary btn-lg" style="width:38%"><b>Status</b>
                 </button>
              <button onclick="location.href='{{ url('hisoctrl') }}'" type="button" class="btn btn-info btn-lg" style="width:38%"><b>History</b>
                 </button>
+            <a onclick="location.href='{{ url('trash') }}'"class="" style="width:15%"><img src="{{ asset('images/recycle-icon.png') }}" style="width:40px" > <?php echo "<a class='btn btn-xs btn-danger'>". "<b>".$deleted[0]->deleted."</b>"."</a>"; ?>
+                </a>
 
        </td> 
        <td style='width: 64%'>        

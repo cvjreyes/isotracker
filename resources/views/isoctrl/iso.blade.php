@@ -244,6 +244,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
         $pdfspo= "../public/storage/isoctrl/iso/attach/".$afilename[0]."-PROC.pdf";
         $pdfsit= "../public/storage/isoctrl/iso/attach/".$afilename[0]."-INST.pdf";
 
+        
               $issued = DB::select("SELECT * FROM misoctrls WHERE filename = '".$filename[$i]."'");
 
               $requested = DB::select("SELECT * FROM misoctrls WHERE filename = '".$filename[$i]."'"); // same query for request
@@ -287,7 +288,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
       <?php }else{ ?>
 
       <td><?php echo $issued[0]->from; ?></td>
-      <td><?php echo $issued[0]->created_at; ?></td> <!-- Se utiliza la variable $issued solo para aprovechar -->
+      <td><?php echo $issued[0]->updated_at; ?></td> <!-- Se utiliza la variable $issued solo para aprovechar -->
       
       <?php } ?>
 

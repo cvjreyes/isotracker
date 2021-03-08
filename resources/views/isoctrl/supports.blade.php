@@ -321,7 +321,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
       <?php }else{ ?>
 
       <td><?php echo $issued[0]->from; ?></td>
-      <td><?php echo $issued[0]->created_at; ?></td> <!-- Se utiliza la variable $issued solo para aprovechar -->
+      <td><?php echo $issued[0]->updated_at; ?></td> <!-- Se utiliza la variable $issued solo para aprovechar -->
       
       <?php } ?>
 
@@ -567,11 +567,11 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
             <?php if ($requested[0]->deleted==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
 
-                 <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/0" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0">Cancel Delete</a>
+                 <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/0/supports" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0" data-tray = "supports">Cancel Delete</a>
 
             <?php }else{ ?>
          
-                  <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/1" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1">Delete</a>
+                  <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/1/supports" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "supports">Delete</a>
 
             <?php } ?>
 

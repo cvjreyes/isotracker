@@ -400,7 +400,7 @@ echo $hoy; ?>
       <?php }else{ ?>
 
       <td><?php echo $issued[0]->from; ?></td>
-      <td><?php echo $issued[0]->created_at; ?></td> <!-- Se utiliza la variable $issued solo para aprovechar -->
+      <td><?php echo $issued[0]->updated_at; ?></td> <!-- Se utiliza la variable $issued solo para aprovechar -->
       
       <?php } ?>
 
@@ -673,11 +673,11 @@ echo $hoy; ?>
 
             <?php if ($requested[0]->deleted==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
 
-                 <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/0" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0">Cancel Delete</a>
+                 <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/0/design" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0"  data-tray = "design">Cancel Delete</a>
 
             <?php }else{ ?>
          
-                  <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/1" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1">Delete</a>
+                  <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design">Delete</a>
 
             <?php } ?>
 

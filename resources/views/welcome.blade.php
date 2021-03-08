@@ -20,7 +20,7 @@
                 font-weight: 100;
                 height: 100vh;
                 margin: 0;
-                background: url('images/refinery1.png') no-repeat center center fixed;
+                background: url('images/refinery4.png') no-repeat center center fixed;
                 width:100%;height:100%;
                 background-size: cover;
                 -moz-background-size: cover;
@@ -72,7 +72,7 @@
         </style>
     </head>
     <body>
-        <img src="images/tpfmc_logo-bn.gif" style="height: 60px;position:fixed;margin-top: 2%;padding-left: 2%">
+        
         <div class="flex-center position-ref full-height">
             @if (Route::has('login'))
                 <div class="top-right links">
@@ -90,7 +90,7 @@
                             <!-- <br>    
                             &nbsp;&nbsp;&nbsp;<img style="width:900px;" src="{{ asset('images/tpfmc_logo.svg') }}" >&nbsp;&nbsp;&nbsp;
                             <br> -->
-                            <div style="color: white;font-weight: normal;font-size: 100px">3D Progress Control v2</div><br><div style="font-size: 24px;color: white;text-align: center">Copyright 2018 TechnipFMC plc - Developed by: J.Reyes-Sztayzel</div>
+                            <div style="color: white;font-weight: normal;font-size: 100px">3D Progress Control v2</div><br><div style="font-size: 24px;color: white;text-align: center">@include('common.footer')</div>
                 
                 </div>
 
@@ -101,7 +101,7 @@
                     <br>
                     <br>
                     <br>
-                    <div align="right" style="color: white;font-weight: bold">&#9400; &nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    <div align="right" style="color: white;font-weight: bold">&nbsp;&nbsp;&nbsp;&nbsp;</div>
                     <br>
                     <!-- <a href="https://laravel.com/docs">Documentation</a>
                     <a href="https://laracasts.com">Laracasts</a>

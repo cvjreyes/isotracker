@@ -60,7 +60,7 @@ function alertDGC(mensaje)
   
    $(document).on('click', '.comments-stress-modal', function() {
 
-            $('.filename').val($(this).data('filename'));
+            $('.filenames').val($(this).data('filenames'));
             $('.pathfrom').val($(this).data('pathfrom'));
             $('.requestbydesign').val($(this).data('requestbydesign'));
             $('.requestbylead').val($(this).data('requestbylead'));
@@ -69,7 +69,7 @@ function alertDGC(mensaje)
 
    $(document).on('click', '.comments-stress-to-lead-modal', function() {
 
-            $('.filename').val($(this).data('filename'));
+            $('.filenames').val($(this).data('filenames'));
             $('.pathfrom').val($(this).data('pathfrom'));
             $('.requestbydesign').val($(this).data('requestbydesign'));
             $('.requestbylead').val($(this).data('requestbylead'));
@@ -78,7 +78,7 @@ function alertDGC(mensaje)
 
    $(document).on('click', '.comments-ldgstress-to-materials-modal', function() {
 
-            $('.filename').val($(this).data('filename'));
+            $('.filenames').val($(this).data('filenames'));
             $('.pathfrom').val($(this).data('pathfrom'));
             $('.requestbydesign').val($(this).data('requestbydesign'));
             $('.requestbylead').val($(this).data('requestbylead'));
@@ -87,7 +87,7 @@ function alertDGC(mensaje)
 
    $(document).on('click', '.reject-ldgstress-modal', function() {
 
-            $('.filename').val($(this).data('filename'));
+            $('.filenames').val($(this).data('filenames'));
             $('.pathfrom').val($(this).data('pathfrom'));
             $('.requestbydesign').val($(this).data('requestbydesign'));
             $('.requestbylead').val($(this).data('requestbylead'));
@@ -96,7 +96,7 @@ function alertDGC(mensaje)
 
    $(document).on('click', '.reject-ldgstress-to-ldgsupports-modal', function() {
 
-            $('.filename').val($(this).data('filename'));
+            $('.filenames').val($(this).data('filenames'));
             $('.pathfrom').val($(this).data('pathfrom'));
             $('.requestbydesign').val($(this).data('requestbydesign'));
             $('.requestbylead').val($(this).data('requestbylead'));
@@ -106,7 +106,7 @@ function alertDGC(mensaje)
 
    $(document).on('click', '.reject-ldgstress-to-design-modal', function() {
 
-            $('.filename').val($(this).data('filename'));
+            $('.filenames').val($(this).data('filenames'));
             $('.pathfrom').val($(this).data('pathfrom'));
             $('.requestbydesign').val($(this).data('requestbydesign'));
 
@@ -114,7 +114,7 @@ function alertDGC(mensaje)
 
    $(document).on('click', '.reject-stress-modal', function() {
 
-            $('.filename').val($(this).data('filename'));
+            $('.filenames').val($(this).data('filenames'));
             $('.pathfrom').val($(this).data('pathfrom'));
             $('.requestbydesign').val($(this).data('requestbydesign'));
             $('.requestbylead').val($(this).data('requestbylead'));
@@ -123,7 +123,7 @@ function alertDGC(mensaje)
 
     $(document).on('click', '.upload-design-modal', function() {
 
-            $('.filename').val($(this).data('filename'));
+            $('.filenames').val($(this).data('filenames'));
             $('.pathfrom').val($(this).data('pathfrom'));
             $('.requestbydesign').val($(this).data('requestbydesign'));
             $('.requestbylead').val($(this).data('requestbylead'));
@@ -138,7 +138,7 @@ function alertDGC(mensaje)
 
 <html>
 <head>
-<title>Trash</title>
+<title>Recycle Bin</title>
 
 </head>
 <body>
@@ -148,7 +148,7 @@ function alertDGC(mensaje)
     <!-- <h4>Agregar Nueva Descarga</h4> -->
     <hr style="margin-top:5px;margin-bottom: 5px;">
     <center><h2 style="padding-top: 4%"><b><i>IsoTracker</i></b></h2>
-      <h3>Trash</h3></center>
+      <h3>Recycle Bin</h3></center>
       <div class="panel-body">
         <form id="frm-example" class="form-horizontal" role="form" method="POST" action="{{ url('/sendfromstressbulk') }}">    
        {!! csrf_field() !!}
@@ -204,7 +204,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
             $('.id').val($(this).data('id'));
 
 
-            $('.filename').val($(this).data('filename'));
+            $('.filenames').val($(this).data('filenames'));
             $('.comments').val($(this).data('comments'));
 
         });
@@ -214,16 +214,14 @@ $(document).on('click', '.show-vcomments-modal', function() {
     <center><thead>
         <tr>
             <th style="text-align: center"><input type="checkbox" name="select_all" value="1" id="example-select-all"></th>
-            <th style="text-align: center">Iso ID</th>
-          
-            <th style="text-align: center">From</th>
+            <th style="text-align: center">Iso ID</th>        
+            <th style="text-align: center">trays</th>
             <th style="text-align: center">Date</th>
             <th style="text-align: center">Actions</th>
         </tr>
     </thead></center>
     <tfoot><tr>
-            <th style="text-align: center"></th>
-   
+            <th style="text-align: center"></th>  
             <th style="text-align: center"></th>
             <th style="text-align: center"></th>
             <th style="text-align: center"></th>
@@ -244,41 +242,41 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
       <tbody>
             <?php
-              $filename = scandir("../public/storage/isoctrl/TRASH");
+              //$filenames = scandir("../public/storage/isoctrl/design/TRASH");
               $num=0;
 
-              for ($i=2; $i<count($filename); $i++)
+              for ($i=0; $i<count($filenames); $i++)
               {$num++;
               ?>
         
       <?php 
 
-        $extension = pathinfo($filename[$i], PATHINFO_EXTENSION);
+        $extension = pathinfo($filenames[$i], PATHINFO_EXTENSION);
             if (($extension == 'pdf')) {
 
       ?>
 
     <tr>
 
-        <td><?php echo $filename[$i]; ?></td>
+        <td><?php echo $filenames[$i]; ?></td>
 
         <td><?php 
 
-        $afilename=explode(".", $filename[$i]);
+        $afilenames=explode(".", $filenames[$i]);
 
-        $pdfcl= "../public/storage/isoctrl/stress/attach/".$afilename[0]."-CL.pdf";
-        $zip= "../public/storage/isoctrl/stress/attach/".$afilename[0].".zip";
-        $bfile= "../public/storage/isoctrl/stress/attach/".$afilename[0].".b";
-        $dxf= "../public/storage/isoctrl/stress/attach/".$afilename[0]."-01.dxf";
-        $cii= "../public/storage/isoctrl/stress/attach/".$afilename[0].".cii";
+        $pdfcl= "../public/storage/isoctrl/stress/attach/".$afilenames[0]."-CL.pdf";
+        $zip= "../public/storage/isoctrl/stress/attach/".$afilenames[0].".zip";
+        $bfile= "../public/storage/isoctrl/stress/attach/".$afilenames[0].".b";
+        $dxf= "../public/storage/isoctrl/stress/attach/".$afilenames[0]."-01.dxf";
+        $cii= "../public/storage/isoctrl/stress/attach/".$afilenames[0].".cii";
 
-        $pdftie= "../public/storage/isoctrl/stress/attach/".$afilename[0]."-TIE.pdf";
-        $pdfspo= "../public/storage/isoctrl/stress/attach/".$afilename[0]."-PROC.pdf";
-        $pdfsit= "../public/storage/isoctrl/stress/attach/".$afilename[0]."-INST.pdf";
+        $pdftie= "../public/storage/isoctrl/stress/attach/".$afilenames[0]."-TIE.pdf";
+        $pdfspo= "../public/storage/isoctrl/stress/attach/".$afilenames[0]."-PROC.pdf";
+        $pdfsit= "../public/storage/isoctrl/stress/attach/".$afilenames[0]."-INST.pdf";
 
-           $issued = DB::select("SELECT * FROM misoctrls WHERE id=(SELECT max(id) FROM misoctrls WHERE  filename LIKE '%".$afilename[0]."%')");
+           $issued = DB::select("SELECT * FROM misoctrls WHERE id=(SELECT max(id) FROM misoctrls WHERE  filename LIKE '%".$afilenames[0]."%')");
 
-            $requested = DB::select("SELECT * FROM misoctrls WHERE id=(SELECT max(id) FROM misoctrls WHERE  filename LIKE '%".$afilename[0]."%')"); // same query for request
+            $requested = DB::select("SELECT * FROM misoctrls WHERE id=(SELECT max(id) FROM misoctrls WHERE  filename LIKE '%".$afilenames[0]."%')"); // same query for request
 
        if ($issued[0]->requested==1){ ?> <!-- solicitud diseño -->
 
@@ -293,11 +291,11 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
          <?php if ($issued[0]->deleted==1 AND $issued[0]->requested==1){ ?> <!-- DELETED -->  
       
-         <?php echo "<a target='_blank' href='../public/storage/isoctrl/".$filename[$i]."'><strike>". $filename[$i]."</strike></a>"; ?></td> 
+         <?php echo "<a target='_blank' href='../public/storage/isoctrl/".$filenames[$i]."'><strike>". $filenames[$i]."</strike></a>"; ?></td> 
 
           <?php }else{ ?>   
 
-         <?php echo "<a target='_blank' href='../public/storage/isoctrl/".$filename[$i]."'>". $filename[$i]."</a>"; ?></td> 
+         <?php echo "<a target='_blank' href='../public/storage/isoctrl/".$filenames[$i]."'>". $filenames[$i]."</a>"; ?></td> 
 
          <?php } ?>
 
@@ -312,8 +310,8 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
       <?php }else{ ?>
 
-      <td><?php echo $issued[0]->from; ?></td>
-      <td><?php echo $issued[0]->created_at; ?></td> <!-- Se utiliza la variable $issued solo para aprovechar -->
+      <td><?php echo ucfirst($trays[$i]); ?></td>
+      <td><?php echo $issued[0]->updated_at; ?></td> <!-- Se utiliza la variable $issued solo para aprovechar -->
       
       <?php } ?>
 
@@ -331,7 +329,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
            <?php if ($requested[0]->requested!=1 AND $requested[0]->requestedlead!=1 AND $requested[0]->deleted==0 AND $requested[0]->verifystress==0){ ?> <!-- Si no tiene solicitud desde diseño puede enviar a siguiente etapa -->
 
-              <a class="comments-stress-modal btn btn-xs btn-success" data-filename ="<?php echo $filename[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#commentsfromstressModal"  <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Restore</a>
+              <a class="comments-stress-modal btn btn-xs btn-success" data-filenames ="<?php echo $filenames[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#commentsfromstressModal"  <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Restore</a>
              
 
           <?php }elseif($requested[0]->requested!=0 AND $requested[0]->requestedlead!=0 AND $requested[0]->deleted==0){ ?>
@@ -359,7 +357,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
                   <?php if ($requested[0]->claimed==0){?>
 
-                  <a href="verifyforstresslead/<?php echo $filename[$i]; ?>/0" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0"><b>WAITING FOR VERIFICATION</b></a>
+                  <a href="verifyforstresslead/<?php echo $filenames[$i]; ?>/0" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0"><b>WAITING FOR VERIFICATION</b></a>
 
                   <?php } ?>
 
@@ -371,44 +369,44 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
                         <?php if (file_exists($pdfcl)) { ?>  
 
-                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
+                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
                            
                         <?php } ?>
 
                         <?php if (file_exists($zip)) { ?>  
 
-                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
+                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
                            
                         <?php } ?>
 
                         <?php if (file_exists($pdfspo)) { ?>  
 
-                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
+                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
                            
                         <?php } ?>
 
                         <?php if (file_exists($pdfsit)) { ?>  
 
-                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
+                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
                            
                         <?php } ?>
 
 
                         <?php if (file_exists($bfile)) { ?>  
 
-                           <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
+                           <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
                            
                         <?php } ?>
 
                         <?php if (file_exists($dxf)) { ?>  
 
-                           <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
+                           <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
                            
                         <?php } ?>
 
                         <?php if (file_exists($cii)) { ?>  
 
-                           <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".cii' download>". "<b>CII</b>"."</a>"; ?>
+                           <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".cii' download>". "<b>CII</b>"."</a>"; ?>
 
                          <?php } ?> 
 
@@ -420,7 +418,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
             <?php if ($requested[0]->claimed==1 AND Auth::user()->name==$requested[0]->user){ ?><!-- Switch para enviar o cancelar reclamo Stress-->
 
-                 <a href="claimiso/<?php echo $filename[$i]; ?>/0" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0"><b>UNCLAIM</b></a>
+                 <a href="claimiso/<?php echo $filenames[$i]; ?>/0" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0"><b>UNCLAIM</b></a>
 
             <?php }elseif ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){ ?><!-- Switch para enviar o cancelar reclamo Stress -->
             
@@ -436,43 +434,43 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
           <?php if (file_exists($pdfcl)) { ?>  
 
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
+             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($zip)) { ?>  
 
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
+             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($pdfspo)) { ?>  
 
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
+             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($pdfsit)) { ?>  
 
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
+             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($bfile)) { ?>  
 
-             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
+             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($dxf)) { ?>  
 
-             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
+             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($cii)) { ?>  
 
-             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".cii' download>". "<b>CII</b>"."</a>"; ?>
+             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".cii' download>". "<b>CII</b>"."</a>"; ?>
 
            <?php } ?> 
 
@@ -484,43 +482,43 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
                        <?php if (file_exists($pdfcl)) { ?>  
 
-                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
+                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
                          
                       <?php } ?>
 
                       <?php if (file_exists($zip)) { ?>  
 
-                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
+                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
                          
                       <?php } ?>
 
                       <?php if (file_exists($pdfspo)) { ?>  
 
-                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
+                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
                          
                       <?php } ?>
 
                       <?php if (file_exists($pdfsit)) { ?>  
 
-                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
+                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
                          
                       <?php } ?>
 
                       <?php if (file_exists($bfile)) { ?>  
 
-                         <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
+                         <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
                          
                       <?php } ?>
 
                       <?php if (file_exists($dxf)) { ?>  
 
-                         <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
+                         <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
                          
                       <?php } ?>
 
                       <?php if (file_exists($cii)) { ?>  
 
-                         <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".cii' download>". "<b>CII</b>"."</a>"; ?>
+                         <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".cii' download>". "<b>CII</b>"."</a>"; ?>
 
                       <?php } ?>    
 
@@ -542,21 +540,21 @@ $(document).on('click', '.show-vcomments-modal', function() {
             <?php } ?>
 
 
-          <a class="comments-ldgstress-to-materials-modal btn btn-xs btn-success" data-filename ="<?php echo $filename[$i]; ?>" data-requestbystress ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#commentsfromldgstresstomaterialsModal" <?php echo $disabled; ?> <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Materials</a>
-         <a class="upload-design-modal btn btn-xs btn-info" data-filename ="<?php echo $filename[$i]; ?>" data-pathfrom="ldgstress" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifydesign ="<?php echo $requested[0]->verifydesign; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>"  data-verifysupports ="<?php echo $requested[0]->verifysupports; ?>" data-toggle="modal" data-target="#uploadfromdesignModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Upload File</a>
+          <a class="comments-ldgstress-to-materials-modal btn btn-xs btn-success" data-filenames ="<?php echo $filenames[$i]; ?>" data-requestbystress ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#commentsfromldgstresstomaterialsModal" <?php echo $disabled; ?> <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Materials</a>
+         <a class="upload-design-modal btn btn-xs btn-info" data-filenames ="<?php echo $filenames[$i]; ?>" data-pathfrom="ldgstress" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifydesign ="<?php echo $requested[0]->verifydesign; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>"  data-verifysupports ="<?php echo $requested[0]->verifysupports; ?>" data-toggle="modal" data-target="#uploadfromdesignModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Upload File</a>
 
          
              <?php if ($requested[0]->fromldgsupports==1){ ?>  
 
-               <a class="reject-ldgstress-to-ldgsupports-modal btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-requestbystress ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#rejectfromldgstresstoldgsupportsModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>><b>LDG Supports</b></a>
+               <a class="reject-ldgstress-to-ldgsupports-modal btn btn-xs btn-danger" data-filenames ="<?php echo $filenames[$i]; ?>" data-requestbystress ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#rejectfromldgstresstoldgsupportsModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>><b>LDG Supports</b></a>
 
             <?php } ?>
-               <a class="reject-ldgstress-modal btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-requestbystress ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#rejectfromldgstressModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>><b>Stress</b></a>
+               <a class="reject-ldgstress-modal btn btn-xs btn-danger" data-filenames ="<?php echo $filenames[$i]; ?>" data-requestbystress ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#rejectfromldgstressModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>><b>Stress</b></a>
 
 
                <?php if ($requested[0]->claimed==1 AND Auth::user()->name==$requested[0]->user){ ?><!-- Switch para enviar o cancelar reclamo Stress-->
 
-                 <a href="claimiso/<?php echo $filename[$i]; ?>/0" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0"><b>UNCLAIM</b></a>
+                 <a href="claimiso/<?php echo $filenames[$i]; ?>/0" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0"><b>UNCLAIM</b></a>
 
             <?php }elseif ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){ ?><!-- Switch para enviar o cancelar reclamo Stress -->
             
@@ -574,37 +572,37 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
           <?php if (file_exists($pdfcl)) { ?>  
 
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
+             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($zip)) { ?>  
 
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
+             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($pdfspo)) { ?>  
 
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
+             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($pdfsit)) { ?>  
 
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
+             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($bfile)) { ?>  
 
-             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
+             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
              
           <?php } ?>
 
           <?php if (file_exists($dxf)) { ?>  
 
-             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilename[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
+             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
            
           <?php } ?>
 
@@ -625,16 +623,16 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
               <?php if($rbd==2){$rbd=2;}else{$rbd=0;}?>
 
-                 <a href="reqfromdesign/<?php echo $filename[$i]; ?>/0" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0">Cancel Request</a>
+                 <a href="reqfromdesign/<?php echo $filenames[$i]; ?>/0" class="btn btn-xs btn-danger" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0">Cancel Request</a>
 
             <?php }elseif($requested[0]->requested==0 AND $requested[0]->verifystress==1 AND $requested[0]->claimed==0){ ?>
          
-                  <a class="comments-design-modal btn btn-xs btn-info" data-filename ="<?php echo $filename[$i]; ?>" data-toggle="modal" data-target=""><b>WAITING FOR LDG-STRESS</b></a>
-                  <a href="reqfromdesign/<?php echo $filename[$i]; ?>/1" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1">Request</a>
+                  <a class="comments-design-modal btn btn-xs btn-info" data-filenames ="<?php echo $filenames[$i]; ?>" data-toggle="modal" data-target=""><b>WAITING FOR LDG-STRESS</b></a>
+                  <a href="reqfromdesign/<?php echo $filenames[$i]; ?>/1" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "1">Request</a>
 
             <?php }elseif($requested[0]->claimed==0){ ?>
          
-                  <a href="reqfromdesign/<?php echo $filename[$i]; ?>/1" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1">Request</a>
+                  <a href="reqfromdesign/<?php echo $filenames[$i]; ?>/1" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "1">Request</a>
 
             <?php }else{ ?>
 
@@ -649,7 +647,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
          <?php if (auth()->user()->hasRole('IsoctrlAdmin')){?>
 
-                <a href="claimiso/<?php echo $filename[$i]; ?>/0" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0"><b>FORCE UNCLAIM TO: <?php echo $requested[0]->user; ?></b></a>
+                <a href="claimiso/<?php echo $filenames[$i]; ?>/0" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0"><b>FORCE UNCLAIM TO: <?php echo $requested[0]->user; ?></b></a>
 
               <?php }else{ ?>
 
@@ -661,11 +659,11 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
             <?php if ($requested[0]->deleted==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
 
-                 <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/0" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0">Cancel Delete</a>
+                 <a href="delfromleadoriso/<?php echo $filenames[$i]; ?>/0/<?php echo $trays[$i]; ?>" class="btn btn-xs btn-success" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0">Restore</a>
 
             <?php }else{ ?>
          
-                  <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/1" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1">Delete</a>
+                  <a href="delfromleadoriso/<?php echo $filenames[$i]; ?>/1/<?php echo $trays[$i]; ?>" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "1">Delete</a>
 
             <?php } ?>
 
@@ -675,11 +673,11 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
         <?php }elseif ($requested[0]->requested==1){ //REQUESTED A LDGSTRESS?>
 
-              <a class="reject-ldgstress-to-design-modal btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-toggle="modal" data-target="#rejectfromldgstresstodesignModal">With Comments</a>
+              <a class="reject-ldgstress-to-design-modal btn btn-xs btn-danger" data-filenames ="<?php echo $filenames[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-toggle="modal" data-target="#rejectfromldgstresstodesignModal">With Comments</a>
 
         <?php }else{ ?>
 
-          <center><a class="comments-design-modal btn btn-xs btn-info" data-filename ="<?php echo $filename[$i]; ?>" data-toggle="modal" data-target=""><b>NO ACTIONS AVAILABLE!</b></a></center>
+          <center><a class="comments-design-modal btn btn-xs btn-info" data-filenames ="<?php echo $filenames[$i]; ?>" data-toggle="modal" data-target=""><b>NO ACTIONS AVAILABLE!</b></a></center>
 
         <?php } ?>
         

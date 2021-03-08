@@ -174,7 +174,7 @@ function vcomments(val)
  
         var miVariableJS= val;
         // Enviamos la variable de javascript a archivo.php
-        $.post("jsvcomments",{"texto":miVariableJS},function(respuesta){
+        $.post("hjsvcomments",{"texto":miVariableJS},function(respuesta){
             alert(respuesta);
 
         });
