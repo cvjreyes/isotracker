@@ -313,6 +313,37 @@ class IsoExportController extends Controller{
 
         }
 
+        public function isofornewrevision(){
+
+          Excel::create('IsosForNewRev', function($excel) {
+
+          $excel->sheet('IsosForNewRev', function($sheet) {
+
+            $isosnewrevs = DB::select("select * from isofornewrevview ");
+
+             foreach ($isosnewrevs as $isosnewrev) {
+
+              if($isosnewrev->statusname=='Issued'){$isosnewrev->statusname='Required';}
+              if(is_null($isosnewrev->statusname)){$isosnewrev->statusname='Issued';$isosnewrev->rev='-';}
+
+                  $row = [];
+                  $row['STATUS'] = $isosnewrev->statusname;
+                  $row['ISO_ID'] = $isosnewrev->filenamerev;
+                  $row['REV'] = $isosnewrev->rev;
+
+                  
+                  $data[] = $row;
+                 
+                 }
+
+                  $sheet->fromArray($data);
+
+              });
+
+          })->export('xlsx');
+
+      }
+
           public function exportissued(){
 
             Excel::create('IsoStatusIssued', function($excel) {

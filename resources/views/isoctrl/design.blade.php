@@ -332,6 +332,8 @@ echo $hoy; ?>
         $pdfspo= "../public/storage/isoctrl/design/attach/".$afilename[0]."-PROC.pdf";
         $pdfsit= "../public/storage/isoctrl/design/attach/".$afilename[0]."-INST.pdf";
 
+           
+        
            $issued = DB::select("SELECT * FROM misoctrls WHERE filename = '".$filename[$i]."'");
 
            $requested = DB::select("SELECT * FROM misoctrls WHERE filename = '".$filename[$i]."'"); // same query for request
@@ -358,6 +360,11 @@ echo $hoy; ?>
 
                     <!-- FIN PARA VALIDAR SI TIENE TIE, SPO O SIT Y CONGELAR CHECKBOX  -->
 
+            <!-- for new revisions  -->  
+             <?php $fornewrevision = DB::select("SELECT * FROM isofornewrevview where filenamerev = '".$afilename[0]."'"); ?>                            
+              <a href="isofornewrevision"><b><?php echo $fornewrevision[0]->rev ?></b></a>
+
+            
             <?php if ($issued[0]->requested==1 OR $issued[0]->requested==2){ ?> <!-- solicitud diseño -->
 
               <a class="btn btn-xs btn-warning"><b>RBD</b></a>

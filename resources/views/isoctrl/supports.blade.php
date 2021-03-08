@@ -282,7 +282,11 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
               $requested = DB::select("SELECT * FROM misoctrls WHERE filename = '".$filename[$i]."'"); // same query for request
 
-        if ($issued[0]->requested==1){ ?> <!-- solicitud diseño -->
+              ?><!-- for new revisions  -->  
+              <?php $fornewrevision = DB::select("SELECT * FROM isofornewrevview where filenamerev = '".$afilename[0]."'"); ?>                            
+              <a href="isofornewrevision"><b><?php echo $fornewrevision[0]->rev ?></b></a>
+  
+         <?php if ($issued[0]->requested==1){ ?> <!-- solicitud diseño -->
 
               <a class="btn btn-xs btn-warning"><b>RBD</b></a>
           
