@@ -93,6 +93,7 @@ Route::post('rejectfromldgsupportstodesign','IsoController@rejectfromldgsupports
 // END VERIFICACIONES
 
 Route::get('delfromleadoriso/{filename}/{req}/{tray}', ['as' => 'delfromleadoriso', 'uses' => 'IsoController@delfromleadoriso']);
+Route::get('holdfromleadoriso/{filename}/{req}/{tray}', ['as' => 'holdfromleadoriso', 'uses' => 'IsoController@holdfromleadoriso']);
 Route::get('chktie/{filename}/{req}', ['as' => 'chktie', 'uses' => 'IsoController@chktie']);
 Route::get('chkspo/{filename}/{req}', ['as' => 'chkspo', 'uses' => 'IsoController@chkspo']);
 Route::get('chksit/{filename}/{req}', ['as' => 'chksit', 'uses' => 'IsoController@chksit']);
@@ -144,6 +145,7 @@ Route::get('/materials', 'IsoController@materials')->name('materials');
 Route::get('/iso', 'IsoController@iso')->name('iso');
 Route::get('/lead', 'IsoController@lead')->name('lead');
 Route::get('/trash', 'IsoController@trash')->name('trash');
+Route::get('/hold', 'IsoController@holds')->name('hold');
 Route::get('/commontray', 'IsoController@commontray')->name('commontray');
 //Route::get('rejectfromstress/{filename}', ['as' => 'rejectfromstress', 'uses' => 'IsoController@rejectfromstress']);
 //Route::get('rejectfromsupports/{filename}', ['as' => 'rejectfromsupports', 'uses' => 'IsoController@rejectfromsupports']);

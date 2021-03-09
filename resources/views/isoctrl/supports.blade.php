@@ -579,7 +579,15 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
             <?php } ?>
 
+            <?php if ($requested[0]->hold==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
 
+            <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/0/supports" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0"  data-tray = "design">Cancel Hold</a>
+
+            <?php }else{ ?>
+
+            <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/1/supports" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design">Hold</a>
+
+            <?php } ?>
 
 
          <?php }elseif ($requested[0]->deleted==1){ ?>
