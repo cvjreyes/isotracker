@@ -274,9 +274,9 @@ $(document).on('click', '.show-vcomments-modal', function() {
         $pdfspo= "../public/storage/isoctrl/stress/attach/".$afilenames[0]."-PROC.pdf";
         $pdfsit= "../public/storage/isoctrl/stress/attach/".$afilenames[0]."-INST.pdf";
 
-           $issued = DB::select("SELECT * FROM misoctrls WHERE id=(SELECT max(id) FROM misoctrls WHERE  filename LIKE '%".$afilenames[0]."%')");
+           $issued = DB::select("SELECT * FROM misoctrls WHERE filename = '".$filenames[$i]."'");
 
-            $requested = DB::select("SELECT * FROM misoctrls WHERE id=(SELECT max(id) FROM misoctrls WHERE  filename LIKE '%".$afilenames[0]."%')"); // same query for request
+            $requested = DB::select("SELECT * FROM misoctrls WHERE filename = '".$filenames[$i]."'"); // same query for request
 
        if ($issued[0]->requested==1){ ?> <!-- solicitud diseño -->
 
@@ -317,345 +317,8 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
       <td>
 
-         <?php if (auth()->user()->hasRole('StressAdmin')){ ?> 
 
-          <!-- SE ACTIVAN O DESACTIVAN SEGÚN CRITERIOS CLAIM -->
-
-            <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){ ?>
-
-                  <a class="btn btn-xs btn-danger" disabled><b>CLAIMED BY: <?php echo $requested[0]->user;?></b></a>
-
-            <?php } ?>
-
-           <?php if ($requested[0]->requested!=1 AND $requested[0]->requestedlead!=1 AND $requested[0]->deleted==0 AND $requested[0]->verifystress==0){ ?> <!-- Si no tiene solicitud desde diseño puede enviar a siguiente etapa -->
-
-              <a class="comments-stress-modal btn btn-xs btn-success" data-filenames ="<?php echo $filenames[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#commentsfromstressModal"  <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Restore</a>
-             
-
-          <?php }elseif($requested[0]->requested!=0 AND $requested[0]->requestedlead!=0 AND $requested[0]->deleted==0){ ?>
-
-             
-         
-          <?php } ?>
-          <?php if ($requested[0]->verifystress==1 AND $requested[0]->deleted==0){ ?><!-- Switch para enviar o cancelar verify StressLead -->
-
-                 
-                <?php if ($requested[0]->fromldgsupports==1){ //SI VIENE DE LDG SUPPORTS NO SE QUITA VERIFY?>
-
-                  <?php if ($requested[0]->claimed==1){?>
-
-                      <a class="btn btn-xs btn-danger" disabled><b>CLAIMED BY: <?php echo $requested[0]->user;?></b></a>
-                  
-                  <?php }else{ ?>
-                  
-                      <a href"" class="btn btn-xs btn-danger" disabled><b>FROM LDG SUPPORTS *</b></a>
-                  
-                  <?php } ?>  
-
-
-                <?php }else{ ?>
-
-                  <?php if ($requested[0]->claimed==0){?>
-
-                  <a href="verifyforstresslead/<?php echo $filenames[$i]; ?>/0" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0"><b>WAITING FOR VERIFICATION</b></a>
-
-                  <?php } ?>
-
-                <?php } ?>
-
-                 <!-- FOR STRESS WAITING-->
-
-                       &nbsp;&nbsp;<a onclick="vcomments(<?php echo $issued[0]->id; ?>)" ><img src="{{ asset('images/comment-icon.png') }}" class="mark-icon" style="width:20px;height:20px"></a>&nbsp;&nbsp;
-
-                        <?php if (file_exists($pdfcl)) { ?>  
-
-                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
-                           
-                        <?php } ?>
-
-                        <?php if (file_exists($zip)) { ?>  
-
-                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
-                           
-                        <?php } ?>
-
-                        <?php if (file_exists($pdfspo)) { ?>  
-
-                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
-                           
-                        <?php } ?>
-
-                        <?php if (file_exists($pdfsit)) { ?>  
-
-                           <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
-                           
-                        <?php } ?>
-
-
-                        <?php if (file_exists($bfile)) { ?>  
-
-                           <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
-                           
-                        <?php } ?>
-
-                        <?php if (file_exists($dxf)) { ?>  
-
-                           <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
-                           
-                        <?php } ?>
-
-                        <?php if (file_exists($cii)) { ?>  
-
-                           <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".cii' download>". "<b>CII</b>"."</a>"; ?>
-
-                         <?php } ?> 
-
-
-                 <!-- END FOR STRESS WAITING-->
-            <?php }elseif ($requested[0]->requested!=1 AND $requested[0]->deleted==0 AND $requested[0]->requestedlead!=1){ ?>
-         
-
-
-            <?php if ($requested[0]->claimed==1 AND Auth::user()->name==$requested[0]->user){ ?><!-- Switch para enviar o cancelar reclamo Stress-->
-
-                 <a href="claimiso/<?php echo $filenames[$i]; ?>/0" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0"><b>UNCLAIM</b></a>
-
-            <?php }elseif ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){ ?><!-- Switch para enviar o cancelar reclamo Stress -->
-            
-                 <!-- NOTHING TO DO -->
-
-            <?php }else{ ?>
-         
-                  
-
-            <?php } ?>
-
-          &nbsp;&nbsp;<a onclick="vcomments(<?php echo $issued[0]->id; ?>)" ><img src="{{ asset('images/comment-icon.png') }}" class="mark-icon" style="width:20px;height:20px"></a>&nbsp;&nbsp;
-
-          <?php if (file_exists($pdfcl)) { ?>  
-
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($zip)) { ?>  
-
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($pdfspo)) { ?>  
-
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($pdfsit)) { ?>  
-
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($bfile)) { ?>  
-
-             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($dxf)) { ?>  
-
-             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($cii)) { ?>  
-
-             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".cii' download>". "<b>CII</b>"."</a>"; ?>
-
-           <?php } ?> 
-
-           <?php }elseif (($requested[0]->requested!=1 OR $requested[0]->requestedlead!=1) AND $requested[0]->deleted!=1) { ?>
-           
-                        
-                 
-                       &nbsp;&nbsp;<a onclick="vcomments(<?php echo $issued[0]->id; ?>)" ><img src="{{ asset('images/comment-icon.png') }}" class="mark-icon" style="width:20px;height:20px"></a>&nbsp;&nbsp;
-
-                       <?php if (file_exists($pdfcl)) { ?>  
-
-                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
-                         
-                      <?php } ?>
-
-                      <?php if (file_exists($zip)) { ?>  
-
-                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
-                         
-                      <?php } ?>
-
-                      <?php if (file_exists($pdfspo)) { ?>  
-
-                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
-                         
-                      <?php } ?>
-
-                      <?php if (file_exists($pdfsit)) { ?>  
-
-                         <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
-                         
-                      <?php } ?>
-
-                      <?php if (file_exists($bfile)) { ?>  
-
-                         <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
-                         
-                      <?php } ?>
-
-                      <?php if (file_exists($dxf)) { ?>  
-
-                         <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
-                         
-                      <?php } ?>
-
-                      <?php if (file_exists($cii)) { ?>  
-
-                         <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".cii' download>". "<b>CII</b>"."</a>"; ?>
-
-                      <?php } ?>    
-
-          <?php }else{ //SI ESTÁ BORRADA?>  
-
-              <center><b>DELETED</b></center>
-
-          <?php } ?> 
-
-
-         <?php }elseif(auth()->user()->hasRole('StressLead') AND $requested[0]->verifystress==1 AND $requested[0]->deleted==0 AND $requested[0]->requested==0){ ?>
-
-           <!-- SE ACTIVAN O DESACTIVAN SEGÚN CRITERIOS CLAIM -->
-
-            <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){ ?>
-
-                  <a class="btn btn-xs btn-danger" disabled><b>CLAIMED BY: <?php echo $requested[0]->user;?></b></a>
-
-            <?php } ?>
-
-
-          <a class="comments-ldgstress-to-materials-modal btn btn-xs btn-success" data-filenames ="<?php echo $filenames[$i]; ?>" data-requestbystress ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#commentsfromldgstresstomaterialsModal" <?php echo $disabled; ?> <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Materials</a>
-         <a class="upload-design-modal btn btn-xs btn-info" data-filenames ="<?php echo $filenames[$i]; ?>" data-pathfrom="ldgstress" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifydesign ="<?php echo $requested[0]->verifydesign; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>"  data-verifysupports ="<?php echo $requested[0]->verifysupports; ?>" data-toggle="modal" data-target="#uploadfromdesignModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Upload File</a>
-
-         
-             <?php if ($requested[0]->fromldgsupports==1){ ?>  
-
-               <a class="reject-ldgstress-to-ldgsupports-modal btn btn-xs btn-danger" data-filenames ="<?php echo $filenames[$i]; ?>" data-requestbystress ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#rejectfromldgstresstoldgsupportsModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>><b>LDG Supports</b></a>
-
-            <?php } ?>
-               <a class="reject-ldgstress-modal btn btn-xs btn-danger" data-filenames ="<?php echo $filenames[$i]; ?>" data-requestbystress ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>" data-toggle="modal" data-target="#rejectfromldgstressModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>><b>Stress</b></a>
-
-
-               <?php if ($requested[0]->claimed==1 AND Auth::user()->name==$requested[0]->user){ ?><!-- Switch para enviar o cancelar reclamo Stress-->
-
-                 <a href="claimiso/<?php echo $filenames[$i]; ?>/0" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0"><b>UNCLAIM</b></a>
-
-            <?php }elseif ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){ ?><!-- Switch para enviar o cancelar reclamo Stress -->
-            
-                 <!-- NOTHING TO DO -->
-
-            <?php }else{ ?>
-         
-               
-            <?php } ?>     
-
-
-          &nbsp;&nbsp;<a onclick="vcomments(<?php echo $issued[0]->id; ?>)" ><img src="{{ asset('images/comment-icon.png') }}" class="mark-icon" style="width:20px;height:20px"></a>&nbsp;&nbsp;
-
-            <!-- PARA LDG STRESS -->
-
-          <?php if (file_exists($pdfcl)) { ?>  
-
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-CL.pdf'>". "<b>PDF</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($zip)) { ?>  
-
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".zip' download>". "<b>ZIP</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($pdfspo)) { ?>  
-
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-PROC.pdf'>". "<b>P</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($pdfsit)) { ?>  
-
-             <?php echo "<a target='_blank' class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0]."-INST.pdf'>". "<b>I</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($bfile)) { ?>  
-
-             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".b' download>". "<b>BFL</b>"."</a>"; ?>
-             
-          <?php } ?>
-
-          <?php if (file_exists($dxf)) { ?>  
-
-             <?php echo "<a class='btn btn-xs btn-default' href='../public/storage/isoctrl/attach/".$afilenames[0].".dxf' download>". "<b>DXF</b>"."</a>"; ?>
-           
-          <?php } ?>
-
-            <!-- FIN PARA LDG STRESS-->    
-
-        <?php }elseif (auth()->user()->hasRole('DesignAdmin')){?>
-
-            <?php $rbd=2; ?>
-
-            <?php if ($requested[0]->deleted==1){ ?>  <!-- Verifica si está borrada -->
-
-                 <center><b>DELETED</b></center>
-
-       
-            
-            <?php }elseif ($requested[0]->requested==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
-
-
-              <?php if($rbd==2){$rbd=2;}else{$rbd=0;}?>
-
-                 <a href="reqfromdesign/<?php echo $filenames[$i]; ?>/0" class="btn btn-xs btn-danger" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0">Cancel Request</a>
-
-            <?php }elseif($requested[0]->requested==0 AND $requested[0]->verifystress==1 AND $requested[0]->claimed==0){ ?>
-         
-                  <a class="comments-design-modal btn btn-xs btn-info" data-filenames ="<?php echo $filenames[$i]; ?>" data-toggle="modal" data-target=""><b>WAITING FOR LDG-STRESS</b></a>
-                  <a href="reqfromdesign/<?php echo $filenames[$i]; ?>/1" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "1">Request</a>
-
-            <?php }elseif($requested[0]->claimed==0){ ?>
-         
-                  <a href="reqfromdesign/<?php echo $filenames[$i]; ?>/1" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "1">Request</a>
-
-            <?php }else{ ?>
-
-                 <center><b>CLAIMED BY: <?php echo $requested[0]->user; ?></b></center>
-
-            <?php } ?>
-
-
-
-        <?php }elseif ($requested[0]->claimed==1){?>
-  
-
-         <?php if (auth()->user()->hasRole('IsoctrlAdmin')){?>
-
-                <a href="claimiso/<?php echo $filenames[$i]; ?>/0" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "0"><b>FORCE UNCLAIM TO: <?php echo $requested[0]->user; ?></b></a>
-
-              <?php }else{ ?>
-
-              <center><b>CLAIMED BY: <?php echo $requested[0]->user; ?></b></center>
-
-            <?php } ?>
-
-        <?php }elseif (auth()->user()->hasRole('IsoctrlAdmin')){?>
+        <?php if (auth()->user()->hasRole('IsoctrlAdmin')){?>
 
             <?php if ($requested[0]->hold==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
 
@@ -663,18 +326,15 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
             <?php }else{ ?>
          
-                  <a href="holdfromleadoriso/<?php echo $filenames[$i]; ?>/1/<?php echo $trays[$i]; ?>" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "1">Delete</a>
+                  <a href="holdfromleadoriso/<?php echo $filenames[$i]; ?>/1/<?php echo $trays[$i]; ?>" class="btn btn-xs btn-warning" data-filenames ="<?php echo $filenames[$i]; ?>" data-request = "1">Hold</a>
 
             <?php } ?>
 
-         <?php }elseif ($requested[0]->deleted==1){ ?>
+         <?php }elseif ($requested[0]->hold==1){ ?>
 
-                <center><b>DELETED</b></center>
+                <center><b>HOLD</b></center>
 
-        <?php }elseif ($requested[0]->requested==1){ //REQUESTED A LDGSTRESS?>
-
-              <a class="reject-ldgstress-to-design-modal btn btn-xs btn-danger" data-filenames ="<?php echo $filenames[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-toggle="modal" data-target="#rejectfromldgstresstodesignModal">With Comments</a>
-
+        
         <?php }else{ ?>
 
           <center><a class="comments-design-modal btn btn-xs btn-info" data-filenames ="<?php echo $filenames[$i]; ?>" data-toggle="modal" data-target=""><b>NO ACTIONS AVAILABLE!</b></a></center>
@@ -693,32 +353,8 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
     </table>
 
-         <!-- BUTTONS FOR SELECT ALL  --> 
-      <?php if (auth()->user()->hasRole('StressAdmin')){ ?>        
-      <center>
-      Click an action for selected IsoFiles:
 
-      <button class="btn btn-sm btn-success" name="destination" value="supports">Restore</button>
-  
-
-      <br><br>
-      {{ Form::textarea('comments', null, ['placeholder' => 'Comments', 'class' => 'comments' , 'cols' => 100, 'rows' =>2,'required' => '', 'maxlength' => "400"]) }} 
-
-        </center>
-      <?php } ?>
-
-      <?php if (auth()->user()->hasRole('StressLead')){ ?>        
-      <center>
-      Click an action for selected IsoFiles:
-
-      <button class="btn btn-sm btn-success" name="destination" value="ldgmaterials">Materials</button>
-
-      <br><br>
-      {{ Form::textarea('comments', null, ['placeholder' => 'Comments', 'class' => 'comments' , 'cols' => 100, 'rows' =>2,'required' => '', 'maxlength' => "400"]) }} 
-
-        </center>
-      <?php } ?>
-
+ 
     <script type="text/javascript">
     
     setTimeout(function() {
