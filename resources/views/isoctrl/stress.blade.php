@@ -712,6 +712,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
                 <center><b>DELETED</b></center>
 
+
         <?php }elseif ($requested[0]->requested==1){ //REQUESTED A LDGSTRESS?>
 
               <a class="reject-ldgstress-to-design-modal btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-toggle="modal" data-target="#rejectfromldgstresstodesignModal">With Comments</a>
