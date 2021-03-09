@@ -199,11 +199,14 @@ $(document).on('click', '.edit-isostatus-modal', function() {
     <table style='width: 100%'>
         <td>
              <?php $deleted = DB::select("SELECT count(*) as deleted FROM misoctrls WHERE deleted=1");?>
-             <button onclick="location.href='{{ url('isostatus') }}'" type="button" class="btn btn-primary btn-lg" style="width:38%"><b>Status</b>
+             <?php $holds = DB::select("SELECT count(*) as hold FROM misoctrls WHERE hold=1");?>
+             <button onclick="location.href='{{ url('isostatus') }}'" type="button" class="btn btn-primary btn-lg" style="width:28%"><b>Status</b>
                 </button>
-             <button onclick="location.href='{{ url('hisoctrl') }}'" type="button" class="btn btn-info btn-lg" style="width:38%"><b>History</b>
+             <button onclick="location.href='{{ url('hisoctrl') }}'" type="button" class="btn btn-info btn-lg" style="width:28%"><b>History</b>
                 </button>
-            <a onclick="location.href='{{ url('trash') }}'"class="" style="width:15%"><img src="{{ asset('images/recycle-icon.png') }}" style="width:40px" > <?php echo "<a class='btn btn-xs btn-danger'>". "<b>".$deleted[0]->deleted."</b>"."</a>"; ?>
+            <a onclick="location.href='{{ url('trash') }}'" class="" style="width:15%"><a href="trash"><img src="{{ asset('images/recycle-icon.png') }}" style="width:40px" ></a> <?php echo "<a class='btn btn-xs btn-danger'>". "<b>".$deleted[0]->deleted."</b>"."</a>"; ?>
+                </a>
+            <a onclick="location.href='{{ url('hold') }}'" class="" style="width:15%"><a href="hold"><img src="{{ asset('images/hold-icon.png') }}" style="width:40px" ></a> <?php echo "<a class='btn btn-xs btn-danger'>". "<b>".$holds[0]->hold."</b>"."</a>"; ?>
                 </a>
 
        </td> 
