@@ -23,7 +23,8 @@ class CreateDisoctrlsTable extends Migration
             $table->string('revision');
             $table->string('issuedfolder');
             $table->string('issuedate');
-            $table->string('deleted');
+            $table->string('deleted')->nullable();
+            $table->string('hold')->nullable();
             $table->string('ddesign')->nullable();
             $table->string('instress')->nullable();
             $table->string('dstress')->nullable();

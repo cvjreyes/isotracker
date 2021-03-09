@@ -24,6 +24,7 @@ class CreateHisoctrlsTable extends Migration
             $table->boolean('requestedlead')->nullable();
             $table->boolean('issued')->nullable();
             $table->boolean('deleted')->nullable();
+            $table->boolean('hold')->nullable();
             $table->boolean('claimed')->nullable();
             $table->boolean('verifydesign')->nullable();
             $table->boolean('verifystress')->nullable();

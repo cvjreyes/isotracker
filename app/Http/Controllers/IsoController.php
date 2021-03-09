@@ -146,6 +146,80 @@ class IsoController extends Controller
        return view('isoctrl.trash')->with('filenames', $filenames)->with('trays', $trays);
     }
 
+    public function holds()
+    {
+       
+      $filename_ds = scandir("../public/storage/isoctrl/design/HOLD"); // DESIGN
+      $filename_st = scandir("../public/storage/isoctrl/stress/HOLD");// STRESS
+      $filename_sp = scandir("../public/storage/isoctrl/supports/HOLD");// SUPPORTS
+      $filename_mt = scandir("../public/storage/isoctrl/materials/HOLD");// MATERIALS
+
+      $n=0; // contador para cargar el array filename[]
+      $m=0; // contador para cargar el array filenames[] (valid)
+
+      for ($i=1; $i<count($filename_ds); $i++){
+       
+            $extension = pathinfo($filename_ds[$i], PATHINFO_EXTENSION);
+            if (($extension == 'pdf')) {
+
+              $filename[$n] = $filename_ds[$i];
+              $tray[$n] = 'design'; // para saber en que bandeja de encuentra
+              $n++;              
+
+            }
+
+          } //endfor DS
+
+      for ($i=1; $i<count($filename_st); $i++){
+       
+            $extension = pathinfo($filename_st[$i], PATHINFO_EXTENSION);
+            if (($extension == 'pdf')) {
+
+              $filename[$n] = $filename_st[$i];
+              $tray[$n] = 'stress'; // para saber en que bandeja de encuentra
+              $n++;                
+
+            }
+
+          } //endfor ST
+
+      for ($i=1; $i<count($filename_sp); $i++){
+       
+            $extension = pathinfo($filename_sp[$i], PATHINFO_EXTENSION);
+            if (($extension == 'pdf')) {
+
+              $filename[$n] = $filename_sp[$i];
+              $tray[$n] = 'supports'; // para saber en que bandeja de encuentra
+              $n++;                
+
+            }
+
+          } //endfor SP
+
+      for ($i=1; $i<count($filename_mt); $i++){
+       
+            $extension = pathinfo($filename_mt[$i], PATHINFO_EXTENSION);
+            if (($extension == 'pdf')) {
+
+              $filename[$n] = $filename_mt[$i];
+              $tray[$n] = 'materials'; // para saber en que bandeja de encuentra
+              $n++;                 
+
+            }
+
+          } //endfor MT
+
+      for ($i=0; $i<$n; $i++){
+
+        $filenames[$m] = $filename[$i];
+        $trays[$m] = $tray[$i]; // correspondiente bandeja por archivo
+        $m++;
+
+          }
+
+       return view('isoctrl.hold')->with('filenames', $filenames)->with('trays', $trays);
+    }
+
     public function commontray()
     {
 
@@ -4949,6 +5023,10 @@ class IsoController extends Controller
             'sit' =>$sit,
             'requested' =>$requestbydesign,
             'requestedlead' =>$requestbylead,
+            'claimed' => 0,
+            'verifydesign' => 0,
+            'verifystress' => 0,
+            'verifysupports' => 0,
             'from' =>'Supports',
             'to' =>'With Comments',
             'comments' =>$comments,
@@ -4964,6 +5042,10 @@ class IsoController extends Controller
             'sit' =>$sit,
             'requested' =>$requestbydesign,
             'requestedlead' =>$requestbylead,
+            'claimed' => 0, 
+            'verifydesign' => 0,
+            'verifystress' => 0,
+            'verifysupports' => 0,
             'from' =>'Supports',
             'to' =>'With Comments',
             'comments' =>$comments,
@@ -6295,6 +6377,8 @@ class IsoController extends Controller
             
             if ($del==1){
               $comments='DeletedLE';
+              $from=ucfirst($tray);
+              $to='Trash';
               rename ("../public/storage/isoctrl/".$tray."/".$filename,"../public/storage/isoctrl/".$tray."/TRASH/".$filename);
               rename ("../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0]."-CL.pdf");
               rename ("../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0]."-INST.pdf");
@@ -6303,6 +6387,8 @@ class IsoController extends Controller
 
             }else{
               $comments='Cancel Delete';
+              $from='Trash';
+              $to=ucfirst($tray);
               rename ("../public/storage/isoctrl/".$tray."/TRASH/".$filename,"../public/storage/isoctrl/".$tray."/".$filename);
               rename ("../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-CL.pdf");
               rename ("../public/storage/isoctrl/".$tray."/TRASH/tattach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-INST.pdf");
@@ -6326,8 +6412,8 @@ class IsoController extends Controller
             'verifydesign' =>$requested[0]->verifydesign,
             'verifystress' =>$requested[0]->verifystress,
             'verifysupports' =>$requested[0]->verifysupports,
-            'from' =>$requested[0]->from,
-            'to' =>$requested[0]->to,
+            'from' =>$from,
+            'to' =>$to,
             'comments' =>$comments,
             'user' =>Auth::user()->name,
              ]);
@@ -6348,8 +6434,8 @@ class IsoController extends Controller
             'verifydesign' =>$requested[0]->verifydesign,
             'verifystress' =>$requested[0]->verifystress,
             'verifysupports' =>$requested[0]->verifysupports,
-            'from' =>$requested[0]->from,
-            'to' =>$requested[0]->to,
+            'from' =>$from,
+            'to' =>$to,
             'comments' =>$comments,
             'user' =>Auth::user()->name,
              ]);
@@ -6357,6 +6443,89 @@ class IsoController extends Controller
             $isostatus = DB::select("SELECT id FROM disoctrls WHERE filename='".$filename."'");
 
             DB::table('disoctrls')->where('id', $isostatus[0]->id)->update(array('deleted' => $del));
+
+            //return redirect('stress');
+
+            return back();
+    }
+
+    public function holdfromleadoriso($filename,$hold,$tray)
+    {
+
+      $afilename=explode(".", $filename);
+
+      
+
+            $requested = DB::select("SELECT * FROM hisoctrls WHERE filename='".$filename."'"." ORDER BY id DESC LIMIT 1");
+            
+            if ($hold==1){
+              $comments='HoldLE';
+              $from=ucfirst($tray);
+              $to='Hold';
+              rename ("../public/storage/isoctrl/".$tray."/".$filename,"../public/storage/isoctrl/".$tray."/HOLD/".$filename);
+              rename ("../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/".$tray."/HOLD/hattach/".$afilename[0]."-CL.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/".$tray."/HOLD/hattach/".$afilename[0]."-INST.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/".$tray."/HOLD/hattach/".$afilename[0]."-PROC.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/attach/".$afilename[0].".zip","../public/storage/isoctrl/".$tray."/HOLD/hattach/".$afilename[0].".zip");
+
+            }else{
+              $comments='Cancel HOLD';
+              $from='Hold';
+              $to=ucfirst($tray);
+              rename ("../public/storage/isoctrl/".$tray."/HOLD/".$filename,"../public/storage/isoctrl/".$tray."/".$filename);
+              rename ("../public/storage/isoctrl/".$tray."/HOLD/hattach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-CL.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/HOLD/hattach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-INST.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/HOLD/hattach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/".$tray."/attach/".$afilename[0]."-PROC.pdf");
+              rename ("../public/storage/isoctrl/".$tray."/HOLD/hattach/".$afilename[0].".zip","../public/storage/isoctrl/".$tray."/attach/".$afilename[0].".zip");
+            }
+
+
+
+            Hisoctrl::create([
+            'filename' =>$filename,
+            'revision' =>$requested[0]->revision,
+            'tie' =>$requested[0]->tie,
+            'spo' =>$requested[0]->spo,
+            'sit' =>$requested[0]->sit,
+            'requested' =>$requested[0]->requestbydesign,
+            'requestedlead' =>$requested[0]->requestbylead,
+            'issued' =>$requested[0]->issued,
+            'hold' =>$hold,
+            'claimed' =>$requested[0]->claimed,
+            'verifydesign' =>$requested[0]->verifydesign,
+            'verifystress' =>$requested[0]->verifystress,
+            'verifysupports' =>$requested[0]->verifysupports,
+            'from' =>$from,
+            'to' =>$to,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+             //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+            Misoctrl::where('filename',$filename)->update([
+             'filename' =>$filename,
+            'revision' =>$requested[0]->revision,
+            'tie' =>$requested[0]->tie,
+            'spo' =>$requested[0]->spo,
+            'sit' =>$requested[0]->sit,
+            'requested' =>$requested[0]->requestbydesign,
+            'requestedlead' =>$requested[0]->requestbylead,
+            'issued' =>$requested[0]->issued,
+            'hold' =>$hold,
+            'claimed' =>$requested[0]->claimed,
+            'verifydesign' =>$requested[0]->verifydesign,
+            'verifystress' =>$requested[0]->verifystress,
+            'verifysupports' =>$requested[0]->verifysupports,
+            'from' =>$from,
+            'to' =>$to,
+            'comments' =>$comments,
+            'user' =>Auth::user()->name,
+             ]);
+
+            $isostatus = DB::select("SELECT id FROM disoctrls WHERE filename='".$filename."'");
+
+            DB::table('disoctrls')->where('id', $isostatus[0]->id)->update(array('hold' => $hold));
 
             //return redirect('stress');
 
