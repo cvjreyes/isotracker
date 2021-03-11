@@ -533,7 +533,7 @@ echo $hoy; ?>
 
             <!-- <a class="comments-design-to-iso-modal btn btn-xs btn-success" data-filename ="<?php //echo $filename[$i]; ?>" data-toggle="modal" data-target="#commentsfromdesigntoisoModal">To Issue</a> -->
             <a class="upload-design-modal btn btn-xs btn-info" data-filename ="<?php echo $filename[$i]; ?>" data-pathfrom="design" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifydesign ="<?php echo $requested[0]->verifydesign; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>"  data-verifysupports ="<?php echo $requested[0]->verifysupports; ?>" data-toggle="modal" data-target="#uploadfromdesignModal">Upload File</a>
-
+           
           <?php } ?>  
         
         <?php }elseif(auth()->user()->hasRole('DesignLead') AND $requested[0]->verifydesign==1){ ?>
@@ -551,7 +551,9 @@ echo $hoy; ?>
           <a class="comments-ldgdesign-to-materials-modal btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifydesign ="<?php echo $requested[0]->verifydesign; ?>" data-toggle="modal" data-target="#commentsfromldgdesigntomaterialsModal" <?php echo $disabled; ?> <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Materials</a>
           <a class="upload-design-modal btn btn-xs btn-info" data-filename ="<?php echo $filename[$i]; ?>" data-pathfrom="ldgdesign" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifydesign ="<?php echo $requested[0]->verifydesign; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>"  data-verifysupports ="<?php echo $requested[0]->verifysupports; ?>" data-toggle="modal" data-target="#uploadfromdesignModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Upload File</a>
                <a class="reject-ldgdesign-modal btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifydesign ="<?php echo $requested[0]->verifydesign; ?>" data-toggle="modal" data-target="#rejectfromldgdesignModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>><b>Design</b></a>
-
+               <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design">Delete</a>
+               <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design">Hold</a>
+                   
           <?php if ($requested[0]->claimed==1 AND Auth::user()->name==$requested[0]->user){ ?><!-- Switch para enviar o cancelar reclamo Design -->
 
                  <a href="claimiso/<?php echo $filename[$i]; ?>/0" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0"><b>UNCLAIM</b></a>
@@ -675,8 +677,20 @@ echo $hoy; ?>
 
             <?php } ?>
 
+        <?php }elseif (auth()->user()->hasRole('LeadAdmin')){?>
 
-        <?php }elseif (auth()->user()->hasRole('IsoctrlAdmin')){?>
+          <?php if ($requested[0]->hold==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
+
+            <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/0/design" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "0"  data-tray = "design">Cancel Hold</a>
+
+            <?php }else{ ?>
+
+            <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design">Hold</a>
+
+            <?php } ?>
+             
+
+        <?php }elseif (auth()->user()->hasRole('IsoctrlAdmin') || auth()->user()->hasRole('DesignLead')){?>
 
             <?php if ($requested[0]->deleted==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
 
