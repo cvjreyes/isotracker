@@ -318,7 +318,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
       <td>
 
 
-        <?php if (auth()->user()->hasRole('DesignLead')){?>
+        <?php if (auth()->user()->hasRole('DesignLead') || auth()->user()->hasRole('IsoctrlAdmin') || auth()->user()->hasRole('LeadAdmin')){?>
 
             <?php if ($requested[0]->hold==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
 
