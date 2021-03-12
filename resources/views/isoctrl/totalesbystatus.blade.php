@@ -22,6 +22,7 @@
                               $isostatus_issued_R0 = DB::select($isostatus_qry1."isostatus.name='Issued' AND disoctrls.filename LIKE '%-0.pdf'".$isostatus_qry2);
                               $isostatus_issued_R1 = DB::select($isostatus_qry1."isostatus.name='Issued'  AND disoctrls.filename LIKE '%-1.pdf'".$isostatus_qry2);
                               $isostatus_issued_R2 = DB::select($isostatus_qry1."isostatus.name='Issued'  AND disoctrls.filename LIKE '%-2.pdf'".$isostatus_qry2);
+                              $holdscount = DB::select("SELECT COUNT(*) as count FROM misoctrls WHERE hold=1");
                              // $isostatus_total = DB::select("SELECT COUNT(*) AS qty FROM disoctrls");
 
 
@@ -47,6 +48,7 @@
                               $lead_qty = $isostatus_lead[0]->qty + 0;
                               $toissue_qty = $isostatus_toissue[0]->qty + 0;
                               $isostatus_total = $new_qty + $design_qty + $stress_qty + $supports_qty + $materials_qty + $lead_qty + $toissue_qty + $isostatus_issued_R0[0]->qty+ 0; 
+                              $holds = $holdscount[0]->count + 0;
 
                                                             
                   echo "<table border style='width: 100%'>";
@@ -57,7 +59,8 @@
                     <td style='text-align: center;width: 11.11%;font-size:13px;font-weight:normal;background: #6B9DBB;color: white'>Materials</td>
                     <td style='text-align: center;width: 11.11%;font-size:13px;font-weight:normal;background: #6B9DBB;color: white'>Issuer</td>
                     <td colspan='4' style='text-align: center;width: 11.11%;font-size:13px;font-weight:normal;background: #6B9DBB;color: white'>Isocontrol</td>
-                    <td colspan='2' style='text-align: center;width: 11.11%;font-size:13px;font-weight:normal;background: #6B9DBB;color: white'> Total </td>
+                    <td colspan='1' style='text-align: center;width: 11.11%;font-size:13px;font-weight:normal;background: #0072ED;color: white'>&nbsp;Total&nbsp;</td>
+                    <td colspan='1' style='text-align: center;width: 11.11%;font-size:13px;font-weight:normal;background: #DC0000;color: white'>&nbsp;Holds&nbsp;</td>
                     </tr>";
                     echo "<tr>";
 
@@ -77,6 +80,7 @@
                           echo "<td style='text-align: center;width: 3.7%;font-size:13px;font-weight:normal'>R1</td>";
                           echo "<td style='text-align: center;width: 3.7%;font-size:13px;font-weight:normal'>R2</td>";
                           echo "<td style='text-align: center;width: 11.11%;font-size:13px;font-weight:normal'>-</td>";
+                          echo "<td style='text-align: center;width: 11.11%;font-size:13px;font-weight:normal'>-</td>";
 
                     echo "</tr>";
                     echo "<tr>";
@@ -92,7 +96,8 @@
                         echo "<td style='font-size:13px;font-weight:normal;text-align: center;background: #FFFFFF';width: 3.7%'>".$isostatus_issued_R0[0]->qty."</td>";
                         echo "<td style='font-size:13px;font-weight:normal;text-align: center;background: #FFFFFF';width: 3.7%'>".$isostatus_issued_R1[0]->qty."</td>";
                         echo "<td style='font-size:13px;font-weight:normal;text-align: center;background: #FFFFFF';width: 3.7%'>".$isostatus_issued_R2[0]->qty."</td>";
-                        echo "<td style='font-size:13px;font-weight:normal;text-align: center;background: #FFFFFF';width: 11.11%'>".$isostatus_total."</td>";
+                        echo "<td style='font-size:13px;font-weight:normal;text-align: center;background: #FFFFFF';width: 11.11%'><b>".$isostatus_total."</b></td>";
+                        echo "<td style='font-size:13px;font-weight:normal;text-align: center;background: #FFFFFF';width: 11.11%'>".$holds."</td>";
                       
                     echo "</tr>";  
                   echo "</table>";
