@@ -177,7 +177,7 @@ function alertDGC(mensaje)
          <button onclick="location.href='{{ url('hisoctrl') }}'" type="button" class="btn btn-info btn-lg" style="width:32%"><b>History</b>
         </button>
         <?php if (auth()->user()->hasRole('DesignAdmin')){ ?> 
-        <button onclick="location.href='{{ url('file') }}'" type="button" class="btn btn-info btn-lg" style="width:32%"><b>Upload Isofiles</b>
+        <button onclick="location.href='{{ url('file') }}'" type="button" class="btn btn-info btn-lg" style="width:32%"><b>Upload Isos</b>
         </button><?php }?>
         <?php if (auth()->user()->hasRole('DesignAdmin')){ ?> 
         <!-- <button onclick="location.href='{{ url('commontray') }}'" type="button" class="btn btn-info btn-lg" style="width:23%"><b>SPO/SIT</b> -->
