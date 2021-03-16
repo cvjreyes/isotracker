@@ -655,7 +655,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
             <?php } ?>
 
-        <?php }elseif (auth()->user()->hasRole('IsoctrlAdmin')){?>
+        <?php }elseif (auth()->user()->hasRole('IsoctrlAdmin') || auth()->user()->hasRole('DesignLead') ){?>
 
             <?php if ($requested[0]->deleted==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
 
