@@ -23,7 +23,7 @@
 
 
         
-                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/rejectfromlead') }}">
+                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/rejectfromlead2') }}">
          
                          
                
@@ -42,6 +42,7 @@
                             <thead>
                                 <tr>
                                     <th style="font-size: 14px;font-weight: bold;">Iso ID</th>
+                                    <th style="font-size: 14px;font-weight: bold;">Tray</th>
                                     <th style="font-size: 14px;font-weight: bold;">Comments</th>
                                 
                                 </tr>
@@ -57,6 +58,7 @@
                                     
                                     <td> {!! Form::text('filename', null, array('placeholder' => 'filename','class' => 'filename','style' => 'width: 300px;font-size: 14px;font-weight: normal;background: #FAFAFA;border:0px;','readonly')) !!}</td>
                                    
+                                    <td>{!! Form::select('tray', array('0' => 'Design', '1' => 'Stress', '2' => 'Supports','3' => 'Materials','4' => 'Issuer'))  !!}</td>
                                     <td>
                                         {{ Form::textarea('comments', null, ['placeholder' => 'Comments', 'class' => 'comments' , 'cols' => 50, 'rows' =>10,'required' => '', 'maxlength' => "400"]) }} 
 

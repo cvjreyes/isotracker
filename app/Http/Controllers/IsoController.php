@@ -5461,6 +5461,370 @@ class IsoController extends Controller
 
     }
 
+    public function rejectfromlead2(Request $request) 
+    {
+
+        $ifc = env('APP_IFC');
+        $filename=$request->filename;
+        $tray=$request->tray;
+        $comments=$request->comments;
+        $requestbydesign=$request->requestbydesign;
+        $requestbylead=$request->requestbylead;
+        //$issued=$request->issued;
+        $trname=$request->to;
+
+        //para mantener el request pero no bloquear
+        if ($requestbydesign==1){$requestbydesign=2;}
+        if ($requestbylead==1){$requestbylead=2;} 
+
+
+        $afilename=explode(".", $filename);
+
+        $check = DB::select("SELECT * FROM hisoctrls WHERE id=(SELECT max(id) FROM hisoctrls WHERE  filename LIKE '%".$afilename[0]."%')");
+
+         $spo = $check[0]->spo;
+         $sit = $check[0]->sit;
+
+         // SI ESTÁ REQUERIDA POR DISEÑO, SPO Y SIT SE COLOCAN NUEVAMENTE EN 1 AL RETORNO SI TIENEN ALGÚN CAMBIO
+
+        if ($check[0]->requested!=0){
+
+            if ($check[0]->spo!=0){
+
+             $spo=1;
+             unlink ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-PROC.pdf");     
+
+            } 
+
+            if ($check[0]->sit!=0){
+
+             $sit=1;
+             unlink ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-INST.pdf");     
+
+            } 
+
+         }
+
+         $revision = $check[0]->revision;
+         $issued = $check[0]->issued;
+
+
+
+         if ($issued==2){ //PARA COMPROBAR REVISIONES
+
+            $revision = $revision+1;
+
+         }else{
+
+            $revision = $revision;
+         }   
+        
+                if ($issued==2){
+
+                  //$issuedfilename=explode("-", $filename);
+                  $issuedfilename=substr($filename, 0, -6);
+
+                  copy ("../public/storage/isoctrl/lead/history/".$filename,"../public/storage/isoctrl/design/".$issuedfilename.".pdf");  
+                  copy ("../public/storage/isoctrl/lead/history/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/design/attach/".$issuedfilename."-CL.pdf");
+                  copy ("../public/storage/isoctrl/lead/history/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/design/attach/".$issuedfilename."-INST.pdf");
+                  copy ("../public/storage/isoctrl/lead/history/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/design/attach/".$issuedfilename."-PROC.pdf");
+                  copy ("../public/storage/isoctrl/lead/history/".$afilename[0].".zip","../public/storage/isoctrl/design/attach/".$issuedfilename.".zip");
+                  copy ("../public/storage/isoctrl/lead/history/".$afilename[0].".b","../public/storage/isoctrl/design/attach/".$issuedfilename.".b");
+ 
+
+                         // PARA ASIGNAR PROGRESO
+
+                          /*  $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$issuedfilename."'");
+
+                             if ($ifc==1){
+
+                                $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='New' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                                $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+                                                      
+                              }else{                                                          
+                                                      
+                                $progress = DB::select("SELECT * FROM ppipes_ifd WHERE level='New' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                                $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+                     
+                              }*/
+                          // FIN PARA ASIGNAR PROGRESO 
+
+                         Disoctrl::create([
+                                'filename' =>$issuedfilename.".pdf",
+                                'isostatus_id' =>1, //NEW
+                               /* 'progress' =>$progress[0]->value,
+                                'progressreal' =>$progress[0]->value,
+                                'progressmax' =>$progressmax[0]->max,*/
+                                 ]);
+
+                         Hisoctrl::create([
+                                'filename' =>$issuedfilename.".pdf",
+                                'comments' =>'From Issuer', //NEW
+                                'spo' =>$spo,
+                                'sit' =>$sit,
+                                 ]);
+
+                         Hisoctrl::where('filename',$filename)->update([
+                           'requested' =>0, //YA NO ES REQUERIDA
+                           'spo' =>$spo,
+                           'sit' =>$sit,
+                           'from' =>'Issuer',
+                           'to' => $trname.' (D)',
+                           'comments' =>$comments,
+                           'user' =>Auth::user()->name,            
+                           ]);
+
+                         //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+                         Misoctrl::where('filename',$filename)->update([
+                                      'filename' =>$issuedfilename.".pdf",
+                                      'requested' =>0, //YA NO ES REQUERIDA
+                                       'spo' =>$spo,
+                                       'sit' =>$sit,
+                                       'from' =>'Issuer',
+                                       'to' => $trname.' (D)',
+                                       'comments' =>$comments,
+                                       'user' =>Auth::user()->name,            
+                                       ]);
+
+                      
+                }elseif ($tray==0){
+
+                  rename ("../public/storage/isoctrl/lead/".$filename,"../public/storage/isoctrl/design/".$filename);
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/design/attach/".$afilename[0]."-CL.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/design/attach/".$afilename[0]."-INST.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/design/attach/".$afilename[0]."-PROC.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".zip","../public/storage/isoctrl/design/attach/".$afilename[0].".zip");
+
+                
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".b","../public/storage/isoctrl/design/attach/".$afilename[0].".b");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".cii","../public/storage/isoctrl/design/attach/".$afilename[0].".cii");
+
+
+
+                  // PARA ASIGNAR PROGRESO
+
+                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
+
+                    //  if ($ifc==1){
+
+                    //     $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='New' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    //     $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+                                              
+                    //   }else{                                                          
+                                              
+                    //     $progress = DB::select("SELECT * FROM ppipes_ifd WHERE level='New' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    //     $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+
+             
+                    //   }
+
+                       $nametray = 'Design';
+                  // FIN PARA ASIGNAR PROGRESO
+
+                  Disoctrl::where('filename',$filename)->update([
+                  'isostatus_id' =>16,//DESIGN RETURN BY ISO
+                  // 'progressreal' =>$progress[0]->value,
+                  // 'progressmax' =>$progressmax[0]->max,             
+                   ]);
+                  //*************//
+
+                  }elseif ($tray==1){
+
+                  rename ("../public/storage/isoctrl/lead/".$filename,"../public/storage/isoctrl/stress/".$filename);
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/stress/attach/".$afilename[0]."-CL.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/stress/attach/".$afilename[0]."-INST.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/stress/attach/".$afilename[0]."-PROC.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".zip","../public/storage/isoctrl/stress/attach/".$afilename[0].".zip");
+                 
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".b","../public/storage/isoctrl/stress/attach/".$afilename[0].".b");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".cii","../public/storage/isoctrl/stress/attach/".$afilename[0].".cii");
+
+
+                  // PARA ASIGNAR PROGRESO
+
+                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
+
+                    //  if ($ifc==1){
+
+                    //     $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='Stress' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    //     $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+                                              
+                    //   }else{                                                          
+                                              
+                    //     $progress = DB::select("SELECT * FROM ppipes_ifd WHERE level='Stress' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    //     $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+
+             
+                    //   }
+
+                      $nametray = 'Stress';
+                  // FIN PARA ASIGNAR PROGRESO
+
+                  Disoctrl::where('filename',$filename)->update([
+                  'isostatus_id' =>2,//STRESS RETURN BY ISO
+                  // 'progressreal' =>$progress[0]->value,
+                  // 'progressmax' =>$progressmax[0]->max,             
+                   ]);
+                  //*************//
+
+                  }elseif ($tray==2){
+
+                  rename ("../public/storage/isoctrl/lead/".$filename,"../public/storage/isoctrl/supports/".$filename);
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/supports/attach/".$afilename[0]."-CL.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/supports/attach/".$afilename[0]."-INST.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/supports/attach/".$afilename[0]."-PROC.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".zip","../public/storage/isoctrl/supports/attach/".$afilename[0].".zip");
+                 
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".b","../public/storage/isoctrl/supports/attach/".$afilename[0].".b");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".cii","../public/storage/isoctrl/supports/attach/".$afilename[0].".cii");
+
+
+
+                  // PARA ASIGNAR PROGRESO
+
+                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
+
+                    //  if ($ifc==1){
+
+                    //     $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='Supports' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    //     $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+                                              
+                    //   }else{                                                          
+                                              
+                    //     $progress = DB::select("SELECT * FROM ppipes_ifd WHERE level='Supports' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    //     $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+
+             
+                    //   }
+
+                      $nametray = 'Supports';
+                  // FIN PARA ASIGNAR PROGRESO
+
+                  Disoctrl::where('filename',$filename)->update([
+                  'isostatus_id' =>3,//SUPPORTS RETURN BY ISO
+                  // 'progressreal' =>$progress[0]->value,
+                  // 'progressmax' =>$progressmax[0]->max,             
+                   ]);
+                  //*************//
+
+                  }elseif ($tray==3){
+
+                  rename ("../public/storage/isoctrl/lead/".$filename,"../public/storage/isoctrl/materials/".$filename);
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/materials/attach/".$afilename[0]."-CL.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/materials/attach/".$afilename[0]."-INST.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/materials/attach/".$afilename[0]."-PROC.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".zip","../public/storage/isoctrl/materials/attach/".$afilename[0].".zip");
+                 
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".b","../public/storage/isoctrl/materials/attach/".$afilename[0].".b");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".cii","../public/storage/isoctrl/materials/attach/".$afilename[0].".cii");
+
+                  
+                  
+
+                  // PARA ASIGNAR PROGRESO
+
+                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
+
+                    //  if ($ifc==1){
+
+                    //     $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='Materials' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    //     $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+                                              
+                    //   }else{                                                          
+                                              
+                    //     $progress = DB::select("SELECT * FROM ppipes_ifd WHERE level='Materials' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    //     $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+
+             
+                    //   }
+
+                      $nametray = 'Materials';
+                  // FIN PARA ASIGNAR PROGRESO
+
+                  Disoctrl::where('filename',$filename)->update([
+                  'isostatus_id' =>4,//SPOOL RETURN BY ISO
+                  // 'progressreal' =>$progress[0]->value,
+                  // 'progressmax' =>$progressmax[0]->max,             
+                   ]);
+                  //*************//
+
+                  }elseif ($tray==4){
+
+                  rename ("../public/storage/isoctrl/lead/".$filename,"../public/storage/isoctrl/lead/".$filename);
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/lead/attach/".$afilename[0]."-CL.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/lead/attach/".$afilename[0]."-INST.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/lead/attach/".$afilename[0]."-PROC.pdf");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".zip","../public/storage/isoctrl/lead/attach/".$afilename[0].".zip");
+                 
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".b","../public/storage/isoctrl/lead/attach/".$afilename[0].".b");
+                  rename ("../public/storage/isoctrl/lead/attach/".$afilename[0].".cii","../public/storage/isoctrl/lead/attach/".$afilename[0].".cii");
+
+                  
+                  
+
+                  // PARA ASIGNAR PROGRESO
+
+                    // $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
+
+                    //  if ($ifc==1){
+
+                    //     $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='Issuer' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    //     $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+                                              
+                    //   }else{                                                          
+                                              
+                    //     $progress = DB::select("SELECT * FROM ppipes_ifd WHERE level='Issuer' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    //     $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+
+             
+                    //   }
+
+                      $nametray = 'Issuer';
+
+                  // FIN PARA ASIGNAR PROGRESO
+
+                  Disoctrl::where('filename',$filename)->update([
+                  'isostatus_id' =>14,//Issuer RETURN BY ISO
+                  // 'progressreal' =>$progress[0]->value,
+                  // 'progressmax' =>$progressmax[0]->max,             
+                   ]);
+                  //*************//
+
+                  }
+                  
+                Hisoctrl::create([
+                  'filename' =>$filename,
+                  'revision' =>$revision,
+                  'spo' =>$spo,
+                  'sit' =>$sit,
+                  'requested' =>$requestbydesign,
+                  'requestedlead' =>$requestbylead,
+                  'from' =>'Issuer',
+                  'to' =>$nametray,
+                  'comments' =>$comments,
+                  'user' =>Auth::user()->name,
+                   ]);  
+
+                    //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+
+         Misoctrl::where('filename',$filename)->update([
+               'filename' =>$filename,
+                  'revision' =>$revision,
+                  'spo' =>$spo,
+                  'sit' =>$sit,
+                  'requested' =>$requestbydesign,
+                  'requestedlead' =>$requestbylead,
+                  'from' =>'Issuer',
+                  'to' =>$nametray,
+                  'comments' =>$comments,
+                  'user' =>Auth::user()->name,
+                   ]);         
+
+        return redirect('lead')->with('success','SUCCESS! '.$filename.' has been sent to '.$nametray.' with comments!');
+
+    }
+
     public function rejectfromiso(Request $request)
     {
 
@@ -5741,7 +6105,7 @@ class IsoController extends Controller
     }
   }
 
-    public function rejectfromiso2(Request $request) //SOLO PARA MIDOR
+    public function rejectfromiso2(Request $request) 
     {
 
         $ifc = env('APP_IFC');
@@ -6019,7 +6383,7 @@ class IsoController extends Controller
              
                     //   }
 
-                      $nametray = 'Spool';
+                      $nametray = 'Materials';
                   // FIN PARA ASIGNAR PROGRESO
 
                   Disoctrl::where('filename',$filename)->update([

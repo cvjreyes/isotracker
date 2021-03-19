@@ -2,9 +2,9 @@
 
 @else
     
-    <div class="modal fade" id="rejectfromisoModal" style="top:20%"; 
+    <div class="modal fade" id="rejectfromleadModal" style="top:20%"; 
      tabindex="-1" role="dialog" 
-     aria-labelledby="rejectfromisoModalLabel">
+     aria-labelledby="rejectfromleadModalLabel">
    <div class="row">
         <div class="col-md-6 col-md-offset-3">
             <div class="panel panel-default">
@@ -23,7 +23,7 @@
 
 
         
-                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/rejectfromiso2') }}">
+                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/rejectfromlead') }}">
          
                          
                
@@ -42,7 +42,6 @@
                             <thead>
                                 <tr>
                                     <th style="font-size: 14px;font-weight: bold;">Iso ID</th>
-                                    <th style="font-size: 14px;font-weight: bold;">Tray</th>
                                     <th style="font-size: 14px;font-weight: bold;">Comments</th>
                                 
                                 </tr>
@@ -55,16 +54,8 @@
 
                                     <td style="display: none;"> {!! Form::text('requestbylead', null, array('placeholder' => 'requestbylead','class' => 'requestbylead','readonly')) !!}
                                     </td>
-
-                                    <td style="display: none;"> {!! Form::text('issued', null, array('placeholder' => 'issued','class' => 'issued','readonly')) !!}
-                                    </td>
-
-                                    <td style="display: none;"> {!! Form::text('to', null, array('placeholder' => 'to','class' => 'to','readonly')) !!}
-                                    </td>
                                     
                                     <td> {!! Form::text('filename', null, array('placeholder' => 'filename','class' => 'filename','style' => 'width: 300px;font-size: 14px;font-weight: normal;background: #FAFAFA;border:0px;','readonly')) !!}</td>
-
-                                    <td>{!! Form::select('tray', array('0' => 'Design', '1' => 'Stress', '2' => 'Supports','3' => 'Materials','4' => 'Issuer'))  !!}</td>
                                    
                                     <td>
                                         {{ Form::textarea('comments', null, ['placeholder' => 'Comments', 'class' => 'comments' , 'cols' => 50, 'rows' =>10,'required' => '', 'maxlength' => "400"]) }} 
