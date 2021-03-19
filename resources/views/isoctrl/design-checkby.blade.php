@@ -1,4 +1,4 @@
-          <?php if ((auth()->user()->hasRole('DesignAdmin')) OR (auth()->user()->hasRole('LeadAdmin'))){ ?> 
+          <?php if ((auth()->user()->hasRole('DesignAdmin')) OR (auth()->user()->hasRole('LeadAdmin')) OR (auth()->user()->hasRole('DesignLead'))){ ?> 
           <center>
             <?php //if ($requested[0]->tie==1){ ?>  <!-- Switch para enviar o cancelar solicitud -->
 

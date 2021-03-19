@@ -281,7 +281,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
            <?php if ($requested[0]->requested!=1 AND $requested[0]->requestedlead!=1){ ?> <!-- Si no tiene solicitud desde diseño puede enviar a siguiente etapa -->
 
-            <?php if (file_exists($pdfcl) AND file_exists($zip) AND $requested[0]->spo==0 AND $requested[0]->sit==0) { ?>
+            <?php if (/*file_exists($pdfcl) AND file_exists($zip)*/ $requested[0]->spo==0 AND $requested[0]->sit==0) { ?>
 
                <a class="comments-lead-modal btn btn-xs btn-success" data-filename ="<?php echo $filename[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-toggle="modal" data-target="#commentsfromleadModal">Isoctrl</a>
 
