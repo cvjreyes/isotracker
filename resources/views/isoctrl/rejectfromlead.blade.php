@@ -58,7 +58,7 @@
                                     
                                     <td> {!! Form::text('filename', null, array('placeholder' => 'filename','class' => 'filename','style' => 'width: 300px;font-size: 14px;font-weight: normal;background: #FAFAFA;border:0px;','readonly')) !!}</td>
                                    
-                                    <td>{!! Form::select('tray', array('0' => 'Design', '1' => 'Stress', '2' => 'Supports','3' => 'Materials','4' => 'Issuer'))  !!}</td>
+                                    <td>{!! Form::select('tray', array('0' => 'Design', '1' => 'Stress', '2' => 'Supports','3' => 'Materials'))  !!}</td>
                                     <td>
                                         {{ Form::textarea('comments', null, ['placeholder' => 'Comments', 'class' => 'comments' , 'cols' => 50, 'rows' =>10,'required' => '', 'maxlength' => "400"]) }} 
 
