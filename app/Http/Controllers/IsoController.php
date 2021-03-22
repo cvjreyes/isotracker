@@ -9,6 +9,7 @@ use App\Misoctrl;
 use App\Disoctrl;
 use Illuminate\Support\Facades\Input;
 use Validator;
+use ZipArchive;
 use Datatables;
 use DB;
 
@@ -727,16 +728,82 @@ class IsoController extends Controller
 
     }
 
-        public function sendfromdesignbulk(Request $request)
+    public function downloadbulk()
+    {
+      
+      if (!is_null($request->filenames)){       
+
+        foreach ($request->filenames as $filename) {
+
+          $afilename=explode(".", $filename);
+
+          //readfile ("../public/storage/isoctrl/design/".$filename);
+          readfile ("../public/storage/isoctrl/design/attach/".$afilename[0]."-CL.pdf");
+          readfile ("../public/storage/isoctrl/design/attach/".$afilename[0]."-INST.pdf");
+          readfile ("../public/storage/isoctrl/design/attach/".$afilename[0]."-PROC.pdf");
+          readfile ("../public/storage/isoctrl/design/attach/".$afilename[0].".zip");
+
+          return redirect('design');
+
+        }
+    
+      }
+    }
+
+    public function sendfromdesignbulk(Request $request)
     {
 
               $ifc = env('APP_IFC');
               $destination = $_POST['destination'];
               $comments=$request->comments;
+              $pos = 0;
+              $countselect=count($request->filenames);//PARA INDICAR EL NUMERO DE ARCHIVOS A DESCARGAR
 
-       if (!is_null($request->filenames)){       
+       if (!is_null($request->filenames)){ 
+             
+
+          if ($destination == 'download') {
+                 
+            $todayis = date("YmdHis");
+            // Define Dir Folder
+            $public_dir="../public/storage/isoctrl/design/";
+            // Zip File Name
+              $zipFileName = 'IsoTracker-'.$todayis.'.zip';
+              // Create ZipArchive Obj
+              $zip = new ZipArchive;
+              if ($zip->open($public_dir . '/' . $zipFileName, ZipArchive::CREATE) === TRUE) {
+                // Add File in ZipArchive
+                
+                foreach ($request->filenames as $filename) {//FOREACH PARA DOWNLOAD
+
+                  $afilename=explode(".", $filename);
+
+                  $zip->addFile("../public/storage/isoctrl/design/".$filename,$filename);
+                  /* $zip->addFile("../public/storage/isoctrl/design/attach/".$afilename[0]."-CL.pdf",$afilename[0]."-CL.pdf");
+                  $zip->addFile("../public/storage/isoctrl/design/attach/".$afilename[0]."-INST.pdf",$afilename[0]."-INST.pdf");
+                  $zip->addFile("../public/storage/isoctrl/design/attach/".$afilename[0]."-PROC.pdf",$afilename[0]."-PROC.pdf");
+                  $zip->addFile("../public/storage/isoctrl/design/attach/".$afilename[0].".zip",$afilename[0].".zip"); */
+                   }//ENDFOREACH PARA DOWNLOAD
+
+                   $zip->close();
+                  
+              }
+              // Set Header
+              $headers = array(
+                  'Content-Type' => 'application/octet-stream',
+              );
+              $filetopath=$public_dir.'/'.$zipFileName;
+              // Create Download Response
+              if(file_exists($filetopath)){
+                  return response()->download($filetopath,$zipFileName,$headers);
+              }
+
+        }//ENDIF PARA DOWNLOAD
+  
 
               foreach ($request->filenames as $filename) {
+
+                
 
                 $afilename=explode(".", $filename);
                 $results = DB::select("SELECT * FROM hisoctrls WHERE id=(SELECT max(id) FROM hisoctrls WHERE  filename LIKE '%".$afilename[0]."%')");
@@ -1334,23 +1401,6 @@ class IsoController extends Controller
                   'from' => 'Design',
                   'verifydesign' => 1));
 
-      }elseif ($destination='download') {
-        
-
-             $filepath = "../public/storage/isoctrl/design/".$filename;
-              header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'.$filename.'"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Lenght: '.filesize($filepath));
-            header('Content-Transfer-Encoding: binary');
-            readfile($filepath);
-            exit;
-
-
-
       }else{
 
         rename ("../public/storage/isoctrl/design/".$filename,"../public/storage/isoctrl/materials/".$filename);
@@ -1466,7 +1516,7 @@ class IsoController extends Controller
   }
 
               }//ENDFOREACH
-                    
+
          return redirect('design')->with('success','SUCCESS! The selected IsoFiles have been sent to '.$destination.'!');
              //return $quien;
 
@@ -2158,7 +2208,45 @@ class IsoController extends Controller
               $destination = $_POST['destination'];
               $comments=$request->comments;
 
-       if (!is_null($request->filenames)){       
+       if (!is_null($request->filenames)){   
+         
+        if ($destination == 'download') {
+                 
+          $todayis = date("YmdHis");
+          // Define Dir Folder
+          $public_dir="../public/storage/isoctrl/lead/";
+          // Zip File Name
+            $zipFileName = 'IsoTracker-'.$todayis.'.zip';
+            // Create ZipArchive Obj
+            $zip = new ZipArchive;
+            if ($zip->open($public_dir . '/' . $zipFileName, ZipArchive::CREATE) === TRUE) {
+              // Add File in ZipArchive
+              
+              foreach ($request->filenames as $filename) {//FOREACH PARA DOWNLOAD
+
+                $afilename=explode(".", $filename);
+
+                $zip->addFile("../public/storage/isoctrl/lead/".$filename,$filename);
+                /* $zip->addFile("../public/storage/isoctrl/lead/attach/".$afilename[0]."-CL.pdf",$afilename[0]."-CL.pdf");
+                $zip->addFile("../public/storage/isoctrl/lead/attach/".$afilename[0]."-INST.pdf",$afilename[0]."-INST.pdf");
+                $zip->addFile("../public/storage/isoctrl/lead/attach/".$afilename[0]."-PROC.pdf",$afilename[0]."-PROC.pdf");
+                $zip->addFile("../public/storage/isoctrl/lead/attach/".$afilename[0].".zip",$afilename[0].".zip"); */
+                 }//ENDFOREACH PARA DOWNLOAD
+
+                 $zip->close();
+                
+            }
+            // Set Header
+            $headers = array(
+                'Content-Type' => 'application/octet-stream',
+            );
+            $filetopath=$public_dir.'/'.$zipFileName;
+            // Create Download Response
+            if(file_exists($filetopath)){
+                return response()->download($filetopath,$zipFileName,$headers);
+            }
+
+      }//ENDIF PARA DOWNLOAD
 
               foreach ($request->filenames as $filename) {
 
@@ -2595,7 +2683,45 @@ class IsoController extends Controller
         mkdir("../public/storage/isoctrl/iso/transmittals/".$trname."/".$issuedate."/", 0700);
 
 
-              if (!is_null($request->filenames)){  
+              if (!is_null($request->filenames)){
+                
+                if ($destination == 'download') {
+                 
+                  $todayis = date("YmdHis");
+                  // Define Dir Folder
+                  $public_dir="../public/storage/isoctrl/iso/";
+                  // Zip File Name
+                    $zipFileName = 'IsoTracker-'.$todayis.'.zip';
+                    // Create ZipArchive Obj
+                    $zip = new ZipArchive;
+                    if ($zip->open($public_dir . '/' . $zipFileName, ZipArchive::CREATE) === TRUE) {
+                      // Add File in ZipArchive
+                      
+                      foreach ($request->filenames as $filename) {//FOREACH PARA DOWNLOAD
+        
+                        $afilename=explode(".", $filename);
+        
+                        $zip->addFile("../public/storage/isoctrl/iso/".$filename,$filename);
+                        /* $zip->addFile("../public/storage/isoctrl/iso/attach/".$afilename[0]."-CL.pdf",$afilename[0]."-CL.pdf");
+                        $zip->addFile("../public/storage/isoctrl/iso/attach/".$afilename[0]."-INST.pdf",$afilename[0]."-INST.pdf");
+                        $zip->addFile("../public/storage/isoctrl/iso/attach/".$afilename[0]."-PROC.pdf",$afilename[0]."-PROC.pdf");
+                        $zip->addFile("../public/storage/isoctrl/iso/attach/".$afilename[0].".zip",$afilename[0].".zip"); */
+                         }//ENDFOREACH PARA DOWNLOAD
+        
+                         $zip->close();
+                        
+                    }
+                    // Set Header
+                    $headers = array(
+                        'Content-Type' => 'application/octet-stream',
+                    );
+                    $filetopath=$public_dir.'/'.$zipFileName;
+                    // Create Download Response
+                    if(file_exists($filetopath)){
+                        return response()->download($filetopath,$zipFileName,$headers);
+                    }
+        
+              }//ENDIF PARA DOWNLOAD
         
         
               foreach ($request->filenames as $filename) {
@@ -3236,7 +3362,46 @@ class IsoController extends Controller
               $destination = $_POST['destination'];
               $comments=$request->comments;
 
-       if (!is_null($request->filenames)){       
+       if (!is_null($request->filenames)){
+         
+        
+        if ($destination == 'download') {
+                 
+          $todayis = date("YmdHis");
+          // Define Dir Folder
+          $public_dir="../public/storage/isoctrl/stress/";
+          // Zip File Name
+            $zipFileName = 'IsoTracker-'.$todayis.'.zip';
+            // Create ZipArchive Obj
+            $zip = new ZipArchive;
+            if ($zip->open($public_dir . '/' . $zipFileName, ZipArchive::CREATE) === TRUE) {
+              // Add File in ZipArchive
+              
+              foreach ($request->filenames as $filename) {//FOREACH PARA DOWNLOAD
+
+                $afilename=explode(".", $filename);
+
+                $zip->addFile("../public/storage/isoctrl/stress/".$filename,$filename);
+                /* $zip->addFile("../public/storage/isoctrl/stress/attach/".$afilename[0]."-CL.pdf",$afilename[0]."-CL.pdf");
+                $zip->addFile("../public/storage/isoctrl/stress/attach/".$afilename[0]."-INST.pdf",$afilename[0]."-INST.pdf");
+                $zip->addFile("../public/storage/isoctrl/stress/attach/".$afilename[0]."-PROC.pdf",$afilename[0]."-PROC.pdf");
+                $zip->addFile("../public/storage/isoctrl/stress/attach/".$afilename[0].".zip",$afilename[0].".zip"); */
+                 }//ENDFOREACH PARA DOWNLOAD
+
+                 $zip->close();
+                
+            }
+            // Set Header
+            $headers = array(
+                'Content-Type' => 'application/octet-stream',
+            );
+            $filetopath=$public_dir.'/'.$zipFileName;
+            // Create Download Response
+            if(file_exists($filetopath)){
+                return response()->download($filetopath,$zipFileName,$headers);
+            }
+
+      }//ENDIF PARA DOWNLOAD
 
               foreach ($request->filenames as $filename) {
 
@@ -3733,7 +3898,45 @@ class IsoController extends Controller
               $destination = $_POST['destination'];
               $comments=$request->comments;
 
-       if (!is_null($request->filenames)){       
+       if (!is_null($request->filenames)){ 
+         
+        if ($destination == 'download') {
+                 
+          $todayis = date("YmdHis");
+          // Define Dir Folder
+          $public_dir="../public/storage/isoctrl/supports/";
+          // Zip File Name
+            $zipFileName = 'IsoTracker-'.$todayis.'.zip';
+            // Create ZipArchive Obj
+            $zip = new ZipArchive;
+            if ($zip->open($public_dir . '/' . $zipFileName, ZipArchive::CREATE) === TRUE) {
+              // Add File in ZipArchive
+              
+              foreach ($request->filenames as $filename) {//FOREACH PARA DOWNLOAD
+
+                $afilename=explode(".", $filename);
+
+                $zip->addFile("../public/storage/isoctrl/supports/".$filename,$filename);
+                /* $zip->addFile("../public/storage/isoctrl/supports/attach/".$afilename[0]."-CL.pdf",$afilename[0]."-CL.pdf");
+                $zip->addFile("../public/storage/isoctrl/supports/attach/".$afilename[0]."-INST.pdf",$afilename[0]."-INST.pdf");
+                $zip->addFile("../public/storage/isoctrl/supports/attach/".$afilename[0]."-PROC.pdf",$afilename[0]."-PROC.pdf");
+                $zip->addFile("../public/storage/isoctrl/supports/attach/".$afilename[0].".zip",$afilename[0].".zip"); */
+                 }//ENDFOREACH PARA DOWNLOAD
+
+                 $zip->close();
+                
+            }
+            // Set Header
+            $headers = array(
+                'Content-Type' => 'application/octet-stream',
+            );
+            $filetopath=$public_dir.'/'.$zipFileName;
+            // Create Download Response
+            if(file_exists($filetopath)){
+                return response()->download($filetopath,$zipFileName,$headers);
+            }
+
+      }//ENDIF PARA DOWNLOAD
 
               foreach ($request->filenames as $filename) {
 
@@ -4497,7 +4700,45 @@ class IsoController extends Controller
               $destination = $_POST['destination'];
               $comments=$request->comments;
 
-       if (!is_null($request->filenames)){       
+       if (!is_null($request->filenames)){
+         
+        if ($destination == 'download') {
+                 
+          $todayis = date("YmdHis");
+          // Define Dir Folder
+          $public_dir="../public/storage/isoctrl/materials/";
+          // Zip File Name
+            $zipFileName = 'IsoTracker-'.$todayis.'.zip';
+            // Create ZipArchive Obj
+            $zip = new ZipArchive;
+            if ($zip->open($public_dir . '/' . $zipFileName, ZipArchive::CREATE) === TRUE) {
+              // Add File in ZipArchive
+              
+              foreach ($request->filenames as $filename) {//FOREACH PARA DOWNLOAD
+
+                $afilename=explode(".", $filename);
+
+                $zip->addFile("../public/storage/isoctrl/materials/".$filename,$filename);
+                /* $zip->addFile("../public/storage/isoctrl/materials/attach/".$afilename[0]."-CL.pdf",$afilename[0]."-CL.pdf");
+                $zip->addFile("../public/storage/isoctrl/materials/attach/".$afilename[0]."-INST.pdf",$afilename[0]."-INST.pdf");
+                $zip->addFile("../public/storage/isoctrl/materials/attach/".$afilename[0]."-PROC.pdf",$afilename[0]."-PROC.pdf");
+                $zip->addFile("../public/storage/isoctrl/materials/attach/".$afilename[0].".zip",$afilename[0].".zip"); */
+                 }//ENDFOREACH PARA DOWNLOAD
+
+                 $zip->close();
+                
+            }
+            // Set Header
+            $headers = array(
+                'Content-Type' => 'application/octet-stream',
+            );
+            $filetopath=$public_dir.'/'.$zipFileName;
+            // Create Download Response
+            if(file_exists($filetopath)){
+                return response()->download($filetopath,$zipFileName,$headers);
+            }
+
+      }//ENDIF PARA DOWNLOAD
 
               foreach ($request->filenames as $filename) {
 
