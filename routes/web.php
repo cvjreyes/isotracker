@@ -55,7 +55,8 @@ Route::post('rejectfromsupports','IsoController@rejectfromsupports')->name('reje
 Route::post('sendtoleadfrommaterials','IsoController@sendtoleadfrommaterials')->name('sendtoleadfrommaterials');
 Route::post('rejectfrommaterials','IsoController@rejectfrommaterials')->name('rejectfrommaterials');
 Route::post('rejectfromlead','IsoController@rejectfromlead')->name('rejectfromlead');
-Route::post('rejectfromiso2','IsoController@rejectfromiso2')->name('rejectfromiso2'); //SOLO PARA MIDOR
+Route::post('rejectfromlead2','IsoController@rejectfromlead2')->name('rejectfromlead2');
+Route::post('rejectfromiso2','IsoController@rejectfromiso2')->name('rejectfromiso2'); 
 Route::post('rejectfromiso','IsoController@rejectfromiso')->name('rejectfromiso');
 Route::get('public/storage/isoctrl/{filename}', ['as' => 'isoctrl', 'uses' => 'IsoController@show']);
 Route::get('public/storage/isoctrl/attach/{filename}', ['as' => 'isoctrl', 'uses' => 'IsoController@showattach']);
@@ -147,7 +148,7 @@ Route::get('/lead', 'IsoController@lead')->name('lead');
 Route::get('/trash', 'IsoController@trash')->name('trash');
 Route::get('/hold', 'IsoController@holds')->name('hold');
 Route::get('/commontray', 'IsoController@commontray')->name('commontray');
-//Route::get('rejectfromstress/{filename}', ['as' => 'rejectfromstress', 'uses' => 'IsoController@rejectfromstress']);
+//Route::get('fromstress/{filename}', ['as' => 'rejectfromstress', 'uses' => 'IsoController@rejectfromstress']);
 //Route::get('rejectfromsupports/{filename}', ['as' => 'rejectfromsupports', 'uses' => 'IsoController@rejectfromsupports']);
 //Route::get('rejectfrommaterials/{filename}', ['as' => 'rejectfrommaterials', 'uses' => 'IsoController@rejectfrommaterials']);
 
