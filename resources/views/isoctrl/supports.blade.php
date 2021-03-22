@@ -636,6 +636,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
       <!-- <button class="btn btn-sm btn-success" name="destination" value="materials">Materials</button> -->
       <button class="btn btn-sm btn-primary" name="destination" value="stress">Stress</button>
       <button class="btn btn-sm btn-danger" name="destination" value="comments">With Comments</button>
+      <button class="btn btn-sm btn-secondary" name="destination" value="download" ><b>Download</b></button>
       <!-- <button class="btn btn-sm btn-default" name="destination" value="ldgsupports"><b>VERIFY</b></button> -->
       <br><br>
       {{ Form::textarea('comments', null, ['placeholder' => 'Comments', 'class' => 'comments' , 'cols' => 100, 'rows' =>2,'required' => '', 'maxlength' => "400"]) }} 
@@ -649,6 +650,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
       <button class="btn btn-sm btn-success" name="destination" value="ldgmaterials">Materials</button>
       <button class="btn btn-sm btn-primary" name="destination" value="ldgstress">LDG Stress</button>
+      <button class="btn btn-sm btn-secondary" name="destination" value="download" ><b>Download</b></button>
 
       <br><br>
       {{ Form::textarea('comments', null, ['placeholder' => 'Comments', 'class' => 'comments' , 'cols' => 100, 'rows' =>2,'required' => '', 'maxlength' => "400"]) }} 

@@ -238,7 +238,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
 </script>
 <?php $hoy = date("H:i:s");
-echo $hoy; ?>
+//echo $hoy; ?>
     <center><thead>
         <tr>
             <th style="text-align: center"><input type="checkbox" name="select_all" value="1" id="example-select-all"></th>          
@@ -747,6 +747,8 @@ echo $hoy; ?>
 
       <button class="btn btn-sm btn-success" name="destination" value="stress" <?php echo $disabled2; ?>>Stress</button>
       <button class="btn btn-sm btn-primary" name="destination" value="supports" <?php echo $disabled2; ?>>Supports</button>
+      <button class="btn btn-sm btn-secondary" name="destination" value="download" ><b>Download</b></button>	
+      
       <!-- <button class="btn btn-sm btn-default" name="destination" value="ldgdesign"><b>VERIFY</b></button> -->
       <!-- <button target='_blank' class="btn btn-sm btn-default" name="destination" value="download"><b>DOWNLOAD</b></button> -->
       <br><br>
@@ -762,12 +764,14 @@ echo $hoy; ?>
       <button class="btn btn-sm btn-success" name="destination" value="ldgstress">Stress</button>
       <button class="btn btn-sm btn-primary" name="destination" value="ldgsupports">Supports</button>
       <button class="btn btn-sm btn-warning" name="destination" value="ldgmaterials">Materials</button>
+      <button class="btn btn-sm btn-secondary" name="destination" value="download" ><b>Download</b></button>
       <!-- <button class="btn btn-sm btn-danger" name="destination" value="materials">Materials</button> -->
       <br><br>
       {{ Form::textarea('comments', null, ['placeholder' => 'Comments', 'class' => 'comments' , 'cols' => 100, 'rows' =>2,'required' => '', 'maxlength' => "400"]) }} 
 
         </center>
       <?php } ?>
+      
 <!-- 
       <b>Data submitted to the server:</b><br>
       <pre id="example-console">
