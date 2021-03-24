@@ -30,8 +30,8 @@ class EequiImportController extends Controller
         /*FIN DE CONVERSIÓN*/
 
         
-
 echo $eequi->area;
+echo $eequi->type.'\n';
 
      Eequisnew::create([
      'areas_id' => $areas_id[0]->id,
