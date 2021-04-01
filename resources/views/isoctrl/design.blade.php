@@ -338,6 +338,16 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
            $requested = DB::select("SELECT * FROM misoctrls WHERE filename = '".$filename[$i]."'"); // same query for request
 
+           if ($issued[0]->verifydesign==0){ // PARA OCULTAR EL SELECT CUANDO EL LIDER NO TENGA ACCIÓN
+
+            $taghold="toHold";     
+                
+          }else{
+            
+            $taghold="Hold";
+
+          }
+
                   // PARA VALIDAR SI TIENE TIE, SPO O SIT Y CONGELAR CHECKBOX
 
                     //if ($issued[0]->tie==1 OR $issued[0]->tie==2 OR $issued[0]->tie==3){ ?>
@@ -552,7 +562,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
           <a class="upload-design-modal btn btn-xs btn-info" data-filename ="<?php echo $filename[$i]; ?>" data-pathfrom="ldgdesign" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifydesign ="<?php echo $requested[0]->verifydesign; ?>" data-verifystress ="<?php echo $requested[0]->verifystress; ?>"  data-verifysupports ="<?php echo $requested[0]->verifysupports; ?>" data-toggle="modal" data-target="#uploadfromdesignModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>>Upload File</a>
                <a class="reject-ldgdesign-modal btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-requestbydesign ="<?php echo $requested[0]->requested; ?>" data-requestbylead ="<?php echo $requested[0]->requestedlead; ?>" data-verifydesign ="<?php echo $requested[0]->verifydesign; ?>" data-toggle="modal" data-target="#rejectfromldgdesignModal" <?php if ($requested[0]->claimed==1 AND Auth::user()->name!=$requested[0]->user){echo "Style='display:none'";} ?>><b>Design</b></a>
                <a href="delfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-warning" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design">Delete</a>
-               <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design">Hold</a>
+               <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design"><?php echo $taghold; ?></a>
                    
           <?php if ($requested[0]->claimed==1 AND Auth::user()->name==$requested[0]->user){ ?><!-- Switch para enviar o cancelar reclamo Design -->
 
@@ -685,7 +695,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
             <?php }else{ ?>
 
-            <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design">Hold</a>
+            <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design"><?php echo $taghold; ?></a>
 
             <?php } ?>
              
@@ -708,7 +718,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
 
             <?php }else{ ?>
 
-            <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design">Hold</a>
+            <a href="holdfromleadoriso/<?php echo $filename[$i]; ?>/1/design" class="btn btn-xs btn-danger" data-filename ="<?php echo $filename[$i]; ?>" data-request = "1" data-tray = "design"><?php echo $taghold; ?></a>
 
             <?php } ?>
 
@@ -764,6 +774,7 @@ $(document).on('click', '.show-vcomments-modal', function() {
       <button class="btn btn-sm btn-success" name="destination" value="ldgstress">Stress</button>
       <button class="btn btn-sm btn-primary" name="destination" value="ldgsupports">Supports</button>
       <button class="btn btn-sm btn-warning" name="destination" value="ldgmaterials">Materials</button>
+      <button class="btn btn-sm btn-danger" name="destination" value="issuer">Issuer</button>
       <button class="btn btn-sm btn-secondary" name="destination" value="download" ><b>Download</b></button>
       <!-- <button class="btn btn-sm btn-danger" name="destination" value="materials">Materials</button> -->
       <br><br>

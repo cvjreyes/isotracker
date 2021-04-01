@@ -1168,6 +1168,118 @@ class IsoController extends Controller
 
               }
 
+            }elseif ($destination =='issuer') {
+    
+              rename ("../public/storage/isoctrl/design/".$filename,"../public/storage/isoctrl/lead/".$filename);
+              rename ("../public/storage/isoctrl/design/attach/".$afilename[0]."-CL.pdf","../public/storage/isoctrl/lead/attach/".$afilename[0]."-CL.pdf");
+              rename ("../public/storage/isoctrl/design/attach/".$afilename[0]."-INST.pdf","../public/storage/isoctrl/lead/attach/".$afilename[0]."-INST.pdf");
+              rename ("../public/storage/isoctrl/design/attach/".$afilename[0]."-PROC.pdf","../public/storage/isoctrl/lead/attach/".$afilename[0]."-PROC.pdf");
+              rename ("../public/storage/isoctrl/design/attach/".$afilename[0].".zip","../public/storage/isoctrl/lead/attach/".$afilename[0].".zip");
+      
+              // PARA DXF (VARIOS POR ISO)
+      
+             /*  for ($i=1; $i<99; $i++) 
+                {   
+      
+                    if ($i<10){$correlative = "-0".$i;}else{$correlative = "-".$i;}
+      
+                    rename ("../public/storage/isoctrl/design/attach/".$afilename[0].$correlative.".dxf","../public/storage/isoctrl/supports/attach/".$afilename[0].$correlative.".dxf");
+      
+      
+                } */
+              
+              // FIN VARIOS DXF
+      
+      
+              rename ("../public/storage/isoctrl/design/attach/".$afilename[0].".b","../public/storage/isoctrl/lead/attach/".$afilename[0].".b");
+              rename ("../public/storage/isoctrl/design/attach/".$afilename[0].".cii","../public/storage/isoctrl/lead/attach/".$afilename[0].".cii");
+      
+      
+                   Hisoctrl::create([
+                  'filename' =>$filename,
+                  'revision' =>$revision,
+                  'spo' =>$spo,
+                  'sit' =>$sit,
+                  'requested' =>$requestbydesign,
+                  'requestedlead' =>$requestbylead,
+                  'from' =>'Design',
+                  'to' =>'Issuer',
+                  'comments' =>$comments,
+                  'user' =>Auth::user()->name,
+                   ]);
+      
+                    //REGISTRO PARA LECTURA DE ULTIMO MOVIMIENTO DE ISOS
+      
+               Misoctrl::where('filename',$filename)->update([
+                   'filename' =>$filename,
+                  'revision' =>$revision,
+                  'spo' =>$spo,
+                  'sit' =>$sit,
+                  'requested' =>$requestbydesign,
+                  'requestedlead' =>$requestbylead,
+                  'from' =>'Design',
+                  'to' =>'Issuer',
+                  'comments' =>$comments,
+                  'user' =>Auth::user()->name,
+                   ]);
+      
+              // SE CREA REGISTRO DE FECHA
+      
+              $currentdate = date('d-m-Y');
+            
+      
+                  $revision = 'A';
+                  $revision_qry = DB::select("SELECT revision FROM disoctrls WHERE filename LIKE '".$filename."'"); 
+      
+                  if (is_null($revision_qry[0]->revision)){
+                    $revision = 'A';
+                  }else{
+                    $revision = ++$revision_qry[0]->revision;
+                  }
+      
+                  // PARA ASIGNAR PROGRESO
+      
+                 $progress = env('APP_PROGRESS');
+      
+                  if ($progress==1){
+      
+                     $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
+                    $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
+      
+                     if ($ifc==1){
+      
+                        $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='Issuer' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                        $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+                                              
+                      }else{                                                          
+                                              
+                        $progress = DB::select("SELECT * FROM ppipes_ifd WHERE level='Issuer' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                        $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+             
+                      }
+                  // FIN PARA ASIGNAR PROGRESO
+      
+      
+                  Disoctrl::where('filename',$filename)->update([
+                    'isostatus_id' =>3,//SUPPORTS
+                    'progress' =>$progress[0]->value,
+                    'progressreal' =>$progress[0]->value,
+                    'progressmax' =>$progressmax[0]->max,
+                    //'revision' =>$revision,
+                    'ddesign' =>$currentdate,
+                    'instress' =>$currentdate
+                      ]);
+      
+                    }else{
+      
+                      Disoctrl::where('filename',$filename)->update([
+                    'isostatus_id' =>14,//ISSUER
+                    'ddesign' =>$currentdate,
+                    'instress' =>$currentdate
+                      ]);
+      
+                    }
+
     }elseif ($destination =='ldgsupports') {
     
         rename ("../public/storage/isoctrl/design/".$filename,"../public/storage/isoctrl/supports/".$filename);
