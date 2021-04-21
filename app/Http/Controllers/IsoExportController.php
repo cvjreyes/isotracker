@@ -319,12 +319,13 @@ class IsoExportController extends Controller{
 
           $excel->sheet('IsosForNewRev', function($sheet) {
 
-            $isosnewrevs = DB::select("select * from isofornewrevview ");
+            $isosnewrevs = DB::select("select * from isofornewrevview");
 
              foreach ($isosnewrevs as $isosnewrev) {
 
               if($isosnewrev->statusname=='Issued'){$isosnewrev->statusname='Required';}
               if(is_null($isosnewrev->statusname)){$isosnewrev->statusname='Issued';$isosnewrev->rev='-';}
+              if(($isosnewrev->deleted==1)){$isosnewrev->statusname='Deleted';$isosnewrev->rev='-';}
 
                   $row = [];
                   $row['STATUS'] = $isosnewrev->statusname;
