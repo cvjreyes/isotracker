@@ -60,8 +60,8 @@ class DpipeUiController extends Controller
                 }
 
 
-                $progress = DB::select("SELECT (sum((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))/sum(weight)) as progress 
-                    FROM dpipesfullview WHERE id=".$epipes->id); // para validar si tiene progreso.
+               // $progress = DB::select("SELECT (sum((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))/sum(weight)) as progress 
+                   //FROM dpipesfullview WHERE id=".$epipes->id); // para validar si tiene progreso.
 
                 $holdspipes = DB::select("SELECT DISTINCT dpipesnews_id,holds FROM holds WHERE dpipesnews_id=".$epipes->id);
                 foreach ($cnote as $cnotes) {
