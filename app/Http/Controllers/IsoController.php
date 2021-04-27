@@ -542,17 +542,29 @@ class IsoController extends Controller
                $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'"); 
               $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
-               if ($ifc==1){
+              $counttpipes = DB::select("SELECT count(*) as count FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
+
+            if($counttpipes[0]->count==1){ //VALIDA SI LINEA EXISTE Y/O CAMBIÓ DE NOMBRE 
+              
+              if ($ifc==1){
 
                   $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='Stress' AND tpipes_id=".$tpipes[0]->tpipes_id);
                   $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);
 
-                }else{
+              }else{
 
                   $progress = DB::select("SELECT * FROM ppipes_ifd WHERE level='Stress' AND tpipes_id=".$tpipes[0]->tpipes_id);
                   $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
        
-                }
+              }
+            }else{
+
+              $progress=-1;
+              $progressmax=-1;
+              $progressreal=-1;
+
+
+            }  
             // FIN PARA ASIGNAR PROGRESO
 
             Disoctrl::where('filename',$filename)->update([
@@ -5236,17 +5248,28 @@ class IsoController extends Controller
               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
               $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
-               if ($ifc==1){
-
-                  $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='New' AND tpipes_id=".$tpipes[0]->tpipes_id);
-                  $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);
-
+              if(count($tpipes)>0){ //VALIDA SI LINEA EXISTE Y/O CAMBIÓ DE NOMBRE 
+              
+                if ($ifc==1){
+  
+                    $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='New' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+  
                 }else{
-
-                  $progress = DB::select("SELECT * FROM ppipes_ifd WHERE level='New' AND tpipes_id=".$tpipes[0]->tpipes_id);
-                  $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
-       
+  
+                    $progress = DB::select("SELECT * FROM ppipes_ifd WHERE level='New' AND tpipes_id=".$tpipes[0]->tpipes_id);
+                    $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifd WHERE tpipes_id=".$tpipes[0]->tpipes_id);
+         
                 }
+              }else{
+  
+                $progress=-1;
+                $progressmax=-1;
+                $progressreal=-1;
+  
+  
+              }  
+              // FIN PARA ASIGNAR PROGRESO
             // FIN PARA ASIGNAR PROGRESO
 
             Disoctrl::where('filename',$filename)->update([
@@ -8242,7 +8265,9 @@ class IsoController extends Controller
               $isoid = DB::select("SELECT isoid FROM misoctrls WHERE filename='".$filename."'");
               $tpipes = DB::select("SELECT tpipes_id FROM dpipesfullview WHERE isoid='".$isoid[0]->isoid."'");
 
-               if ($ifc==1){
+              
+
+              if ($ifc==1){
 
                   $progress = DB::select("SELECT * FROM ppipes_ifc WHERE level='Materials' AND tpipes_id=".$tpipes[0]->tpipes_id);
                   $progressmax = DB::select("SELECT MAX(value) as max FROM ppipes_ifc WHERE tpipes_id=".$tpipes[0]->tpipes_id);

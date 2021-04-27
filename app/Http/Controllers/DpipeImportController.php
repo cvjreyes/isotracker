@@ -18,13 +18,13 @@ class DpipeImportController extends Controller
 
      DB::table('dpipesnews')->truncate();
 
-     // Excel::selectSheets('Sheet1')->load('e3dreports\StatusReport-Pipes_template.xlsx', function($reader) {
-       Excel::load('e3dreports\StatusReport-Pipes.csv', function($reader) {
+     Excel::selectSheets('Sheet1')->load('e3dreports\StatusReport-Pipes.xlsx', function($reader) {
+      // Excel::load('e3dreports\StatusReport-Pipes.xlsx', function($reader) {
 
 
       foreach ($reader->get() as $dpipe) {
 
-        if($dpipe->unit){
+       /*  if($dpipe->unit){
          
          $unit = DB::select("SELECT id FROM units WHERE name="."'".$dpipe->unit."'");
          $unit = $unit[0]->id; 
@@ -33,7 +33,7 @@ class DpipeImportController extends Controller
 
           $unit = 0;
             
-         }
+         } */
 
           // CUSTOM PARA IQOXE
         //   if($dpipe->area){
@@ -61,12 +61,14 @@ class DpipeImportController extends Controller
 
         if($dpipe->diameter){
          
-         $diameter = DB::select("SELECT id FROM diameters WHERE nps=".$dpipe->diameter);
+         $diameter = DB::select("SELECT id FROM diameters WHERE dn=".$dpipe->diameter);
          $diameter = $diameter[0]->id; 
 
         }
 
-        if($dpipe->calc_notes=='unset'){
+        echo $dpipe->calc_notes."-";
+
+        if($dpipe->calc_notes==''){
          
          $calc_notes = 0; 
 
@@ -77,7 +79,7 @@ class DpipeImportController extends Controller
         }
 
 
-        if($dpipe->pid){
+       /*  if($dpipe->pid){
          
          $pid = DB::select("SELECT percentage FROM ppipe_pids WHERE percentage=".$dpipe->pid);
          $pid= $pid[0]->percentage; 
@@ -98,8 +100,8 @@ class DpipeImportController extends Controller
           $iso=0;
 
          } 
-
-         if($dpipe->stress){
+ */
+       /*   if($dpipe->stress){
          
          $stress = DB::select("SELECT percentage FROM ppipe_stresses WHERE percentage=".$dpipe->stress);
          $stress= $stress[0]->percentage; 
@@ -119,24 +121,24 @@ class DpipeImportController extends Controller
 
           $support=0;
 
-         } 
+         }  */
 
-        echo $dpipe->area."-";
+        //echo $dpipe->area."-";
 
         if (!is_null($area)){//VALIDACIÓN AREAS
 
      Dpipesnew::create([
      //'zone_name' => $dpipe->zone_name,
      //'pipe_name' =>$dpipe->pipe_name,
-     'units_id' =>$unit,
+     //'units_id' =>$unit,
      'areas_id' => $area,
      'tag' => $dpipe->tag,
      'diameters_id' =>$diameter,
-     'calc_notes' =>$calc_notes,
-     'ppipe_pids_id' =>$pid,
-     'ppipe_isos_id' =>$iso,
-     'ppipe_stresses_id' =>$stress,
-     'ppipe_supports_id' =>$support
+     'calc_notes' =>$calc_notes
+     //'ppipe_pids_id' =>$pid,
+     //'ppipe_isos_id' =>$iso,
+     //'ppipe_stresses_id' =>$stress,
+     //'ppipe_supports_id' =>$support
      ]);
 
     }//FIN VALIDACIÓN AREAS
@@ -163,7 +165,7 @@ class DpipeImportController extends Controller
     } 
 
      //  Se comprueba el peso deseado (BUDGET/AREAS)
-                $weight_total= DB::select("SELECT weight_total FROM pmanagers WHERE name='pipe'");
+               /*  $weight_total= DB::select("SELECT weight_total FROM pmanagers WHERE name='pipe'");
 
                     if ($weight_total[0]->weight_total==0){
 
@@ -173,17 +175,17 @@ class DpipeImportController extends Controller
 
                         $total_weight= DB::select("SELECT weight FROM pmanagers WHERE name='pipe'");
 
-                    }
+                    } */
                 // FIN DE LA COMPROBACIÓN (BUDGET/AREAS)    
 
-  $sub_total_progress = DB::select("SELECT (SUM((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))) as  sub_total_progress 
+/*   $sub_total_progress = DB::select("SELECT (SUM((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))) as  sub_total_progress 
                                                             FROM dpipesfullview");
 
   $total_progress = ceil(($sub_total_progress[0]->sub_total_progress)/$total_weight[0]->weight);
                                                 
 
     $week = DB::select("SELECT COUNT(*)+1 AS week FROM hpipes");
-    $week = $week[0]->week;                            
+    $week = $week[0]->week;     */                        
 
      // Hpipe::create([
       
