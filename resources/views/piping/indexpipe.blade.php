@@ -298,10 +298,10 @@ $(document).on('click', '.progress-pipe-modal', function() {
                                    
                                             
                                                 
-                                            <?php $sub_total_progress = DB::select("SELECT (SUM((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))) as  sub_total_progress 
-                                                            FROM dpipesfullview");
+                                            <?php //$sub_total_progress = DB::select("SELECT (SUM((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))) as  sub_total_progress 
+                                                            //FROM dpipesfullview");
 
-                                            $total_progress = (($sub_total_progress[0]->sub_total_progress)/$total_weight[0]->weight);
+                                            //$total_progress = (($sub_total_progress[0]->sub_total_progress)/$total_weight[0]->weight);
                                             ?>
 
 
@@ -310,10 +310,10 @@ $(document).on('click', '.progress-pipe-modal', function() {
                                             <?php if ($total_weight[0]->weight!=0) :?>
 
                                                     <h3>Estimated Weight: <?php echo $total_weight[0]->weight; ?>
-                                                    <?php $sub_total_progress = DB::select("SELECT (SUM((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))) as  sub_total_progress 
-                                                            FROM dpipesfullview");
+                                                    <?php //$sub_total_progress = DB::select("SELECT (SUM((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))) as  sub_total_progress 
+                                                            //FROM dpipesfullview");
 
-                                                    $total_progress = (($sub_total_progress[0]->sub_total_progress)/$total_weight[0]->weight);
+                                                    //$total_progress = (($sub_total_progress[0]->sub_total_progress)/$total_weight[0]->weight);
                                                     ?>
 
                                                 <br>Total Progress: <?php echo round($total_progress,1)."%";?></h3>
@@ -349,7 +349,7 @@ $(document).on('click', '.progress-pipe-modal', function() {
 <table border id="epipe" class="table table-hover table-condensed" style="width: 100%;font-size: 14px;font-weight: normal;white-space: nowrap">
     <center><thead>
         <tr>
-            <th>Unit</th>
+            <!-- <th>Unit</th> -->
             <th>Area</th>
             <th>Nominal Diameter</th>
             <th>Line ID</th>
@@ -357,12 +357,12 @@ $(document).on('click', '.progress-pipe-modal', function() {
             <th>Specification</th> -->
             <th>Iso ID</th>
             <th>Type</th>
-            <th>Weight</th>
+            <!-- <th>Weight</th> -->
             <th>Action</th>
         </tr>
     </thead></center>
     <tfoot><tr>
-            <th style="text-align: center"></th>
+            <!-- <th style="text-align: center"></th> -->
             <th style="text-align: center"></th>
             <th style="text-align: center"></th>
             <th style="text-align: center"></th>
@@ -370,7 +370,7 @@ $(document).on('click', '.progress-pipe-modal', function() {
             <th style="text-align: center"></th> -->
             <th style="text-align: center"></th>
             <th style="text-align: center"></th>
-            <th style="text-align: center"></th>
+            <!-- <th style="text-align: center"></th> -->
             <th style="text-align: center"></th>
         </tr></tfoot>
   </table>
@@ -399,7 +399,7 @@ $(document).ready(function() {
         "serverSide": false,
         "ajax": "{{ route('piping.indexpipe') }}",
         "columns": [
-            {data: 'unit', name: 'unit'},
+            // {data: 'unit', name: 'unit'},
             {data: 'area', name: 'area'},
             {data: 'diameter_inch', name: 'diameter_inch'},
             {data: 'tag', name: 'tag'},
@@ -407,7 +407,7 @@ $(document).ready(function() {
             //{data: 'spec', name: 'spec'},NO BORRAR - LISTA DE LINEAS
             {data: 'isoid', name: 'isoid'},
             {data: 'type_line', name: 'type_line'},
-            {data: 'weight', name: 'weight'},
+            //{data: 'weight', name: 'weight'},
             {data: 'action', name: 'action', orderable: false, searchable: false}
 
 

@@ -106,7 +106,9 @@ class IsoExportController extends Controller{
             $excel->sheet('IsoStatus', function($sheet) {
 
              
-              $isostatuss = DB::select("SELECT  disoctrls.filename, if(disoctrls.isostatus_id=13, if(disoctrls.filename LIKE '%-0.pdf','ISSUED R0',if(disoctrls.filename LIKE '%-1.pdf','ISSUED R1',if(disoctrls.filename LIKE '%-2.pdf','ISSUED R2','ISSUED R3'))),if(disoctrls.deleted>0, 'DELETED',if(disoctrls.hold>0,'HOLD','ON GOING'))) AS deleted,disoctrls.created_at, isostatus.name, disoctrls.updated_at FROM disoctrls JOIN isostatus WHERE disoctrls.isostatus_id=isostatus.id GROUP BY disoctrls.filename");
+              $isostatuss = DB::select("SELECT  disoctrls.filename, if(disoctrls.isostatus_id=13, if(disoctrls.filename LIKE '%-0.pdf','ISSUED R0',if(disoctrls.filename LIKE '%-1.pdf','ISSUED R1',
+              if(disoctrls.filename LIKE '%-2.pdf','ISSUED R2','ISSUED R3'))),if(disoctrls.deleted>0, 'DELETED',if(disoctrls.hold>0,'HOLD','ON GOING'))) AS deleted,disoctrls.created_at,
+               if(disoctrls.deleted=0,isostatus.name,'Deleted') AS name, disoctrls.updated_at FROM disoctrls JOIN isostatus WHERE disoctrls.isostatus_id=isostatus.id GROUP BY disoctrls.filename");
                $data= [];
 
                foreach ($isostatuss as $isostatus) {

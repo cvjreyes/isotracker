@@ -221,7 +221,7 @@ class HomeController extends Controller
         
         $weight_total = $weight_pipe[0]->weight + $weight_equi[0]->weight + $weight_civil[0]->weight + $weight_inst[0]->weight + $weight_elec[0]->weight;
 
-        $sub_total_progress = DB::select("SELECT (SUM((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))) as  sub_total_progress FROM dpipesfullview");
+        //$sub_total_progress = DB::select("SELECT (SUM((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))) as  sub_total_progress FROM dpipesfullview");
 
 
         $sum_per_pipe = (($sub_total_progress[0]->sub_total_progress)/$weight_pipe[0]->weight);      

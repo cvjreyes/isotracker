@@ -703,10 +703,10 @@
                                                 <?php if ($total_weight[0]->weight!=0) :?>
 
                                                <!--      <h3>Estimated Weight: <?php //echo $total_weight[0]->weight; ?> -->
-                                                    <?php $sub_total_progress = DB::select("SELECT (SUM((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))) as  sub_total_progress 
-                                                            FROM dpipesfullview");
+                                                    <?php //$sub_total_progress = DB::select("SELECT (SUM((pid*w_pid)+(iso*w_iso)+(stress*w_stress)+(support*w_support))) as  sub_total_progress 
+                                                            //FROM dpipesfullview");
 
-                                                    $total_progress = (($sub_total_progress[0]->sub_total_progress)/$total_weight[0]->weight);
+                                                   // $total_progress = (($sub_total_progress[0]->sub_total_progress)/$total_weight[0]->weight);
                                                     ?>
 
                                                 <!-- <br>Total Progress: <?php //echo round($total_progress,1)."%";?></h3> -->
