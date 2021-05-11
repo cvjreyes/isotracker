@@ -84,7 +84,7 @@
 <table border id="modeledelec" class="table table-hover table-condensed" style="width: 100%;font-size: 14px;font-weight: normal;white-space: nowrap">
     <thead>
         <tr>
-            <th>Unit</th>
+            <!-- <th>Unit</th> -->
             <th>Area</th>
             <th>Tag</th>
             <th>Type</th>
@@ -95,7 +95,7 @@
         </tr>
     </thead>
     <tfoot><tr>
-            <th style="text-align: center"></th>
+            <!-- <th style="text-align: center"></th> -->
             <th style="text-align: center"></th>
             <th style="text-align: center"></th>
             <th style="text-align: center"></th>
@@ -145,7 +145,7 @@ $(document).ready(function() {
         "autoWidth": false,
         "ajax": "{{ route('electrical.delecsfullquery') }}",
         "columns": [
-            {data: 'unit', name: 'unit'},
+            //{data: 'unit', name: 'unit'},
             {data: 'area', name: 'area'},
             {data: 'tag', name: 'tag'},
             {data: 'type_elec', name: 'type_elec'},

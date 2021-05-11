@@ -328,11 +328,11 @@ $(document).on('click', '.progress-pipe-modal', function() {
 
                                                     </h3>
                                                 <h4></h4>
-                                            <?php endif; ?>
+                                            <?php //endif; ?>
 
                                                 </center>
                                                 <br>
-                                                <button onclick="location.href='{{ url('exportpipe') }}'" type="button" class="btn btn-lg btn-success" style="font-size: 16px;font-weight: bold">Excel</button><br>
+                                                <!-- <button onclick="location.href='{{ url('exportpipe') }}'" type="button" class="btn btn-lg btn-success" style="font-size: 16px;font-weight: bold">Excel</button><br> -->
 
 <br>
 
@@ -358,7 +358,7 @@ $(document).on('click', '.progress-pipe-modal', function() {
             <th>Iso ID</th>
             <th>Type</th>
             <!-- <th>Weight</th> -->
-            <th>Action</th>
+            <!-- <th>Action</th> -->
         </tr>
     </thead></center>
     <tfoot><tr>
@@ -371,7 +371,7 @@ $(document).on('click', '.progress-pipe-modal', function() {
             <th style="text-align: center"></th>
             <th style="text-align: center"></th>
             <!-- <th style="text-align: center"></th> -->
-            <th style="text-align: center"></th>
+            <!-- <th style="text-align: center"></th> -->
         </tr></tfoot>
   </table>
 </div>
@@ -406,9 +406,9 @@ $(document).ready(function() {
             //{data: 'sec_number', name: 'sec_number'}, NO BORRAR - LISTA DE LINEAS
             //{data: 'spec', name: 'spec'},NO BORRAR - LISTA DE LINEAS
             {data: 'isoid', name: 'isoid'},
-            {data: 'type_line', name: 'type_line'},
+            {data: 'type_line', name: 'type_line'}
             //{data: 'weight', name: 'weight'},
-            {data: 'action', name: 'action', orderable: false, searchable: false}
+            //{data: 'action', name: 'action', orderable: false, searchable: false}
 
 
         ]
