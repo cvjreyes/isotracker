@@ -328,7 +328,7 @@ $(document).on('click', '.progress-pipe-modal', function() {
 
                                                     </h3>
                                                 <h4></h4>
-                                            <?php //endif; ?>
+                                            <?php endif; ?>
 
                                                 </center>
                                                 <br>
