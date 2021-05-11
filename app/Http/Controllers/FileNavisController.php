@@ -59,7 +59,6 @@ class FileNavisController extends Controller
   
               $texto1 = <<<_END
             <?xml version="1.0" encoding="UTF-8" ?>
-
             <exchange xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://download.autodesk.com/us/navisworks/schemas/nw-exchange-12.0.xsd">
               <optionset name="">
                 <optionset name="interface">
