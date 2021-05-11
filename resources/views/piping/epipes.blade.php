@@ -142,7 +142,43 @@ $(document).on('click', '.edit-holds-modal', function() {
 
                                             <?php endif ?>
 
-                                     <!--   FIN DE LA COMPROBACIÓN (BUDGET/AREAS) -->   
+                                     <!--   FIN DE LA COMPROBACIÓN (BUDGET/AREAS) --> 
+                                                 <?php // VALORES DE PROGRESO
+
+                                                            $maxprogress = DB::select("SELECT SUM(progressmax) as value FROM disoctrls"); //PESO TOTAL DE LOS ISOMETRICOS
+                                                            $progressreal = DB::select("SELECT SUM(progressreal) as value FROM disoctrls");
+                                                            $progress = DB::select("SELECT SUM(progress) as value FROM disoctrls");
+
+                                                            $progressisoreal = round(($progressreal[0]->value / $maxprogress[0]->value)*100,0)+0; //SOBRE ISOMETRICOS
+                                                            $progressisototal = round(($progress[0]->value / $maxprogress[0]->value)*100,0)+0; //SOBRE ISOMETRICOS
+
+                                                            $total_weight= DB::select("SELECT SUM(weight) AS weight FROM dpipesfullview"); //PESO TOTAL
+
+                                                            $remaining_weight = ($total_weight[0]->weight)-($maxprogress[0]->value)+0; // PESO FALTANTE (ISOS POR SUBIR)
+
+                                                            //El remaining_weight se coloca al 0% para IFD y 50% para IFC
+
+                                                            $ifc = env('APP_IFC');
+
+                                                            if ($ifc==1){
+
+                                                                $remaining_weight_progress=($remaining_weight/2)+0;
+
+                                                            }else{
+
+                                                                $remaining_weight_progress=0;
+
+                                                            }
+
+                                                            //SOBRE EL PESO TOTAL MODELADO
+
+                                                            $progress = round(((($progress[0]->value)+($remaining_weight_progress))/(($maxprogress[0]->value)+($remaining_weight)))*100,0);
+
+                                                            $progressreal = round(((($progressreal[0]->value)+($remaining_weight_progress))/(($maxprogress[0]->value)+($remaining_weight)))*100,0);
+
+                                                
+                                                //FIN DE VALORES DE PROGRESO ?>
+
                                                 <?php if ($total_weight[0]->weight!=0) :?>
 
                                                     <h3>Estimated Weight: <?php echo $total_weight[0]->weight; ?>
@@ -152,7 +188,7 @@ $(document).on('click', '.edit-holds-modal', function() {
                                                     //$total_progress = (($sub_total_progress[0]->sub_total_progress)/$total_weight[0]->weight);
                                                     ?>
 
-                                                <br>Total Progress: <?php echo round($total_progress,1)."%";?></h3>
+                                                <br>Total Progress: <?php echo $progress."%";?></h3>
 
 
                                                 <?php else: ?>

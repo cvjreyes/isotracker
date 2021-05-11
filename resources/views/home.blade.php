@@ -88,7 +88,45 @@
 
                    
 
-                    @role('Pipe')<div id="menu_sel" style="height: 50px;border-radius: 4px;transition:200ms;" onMouseOver="this.style.background='#E0E0E0';" onMouseOut="this.style.background='white';"><a href="epipes" style="color:black;text-decoration:none;"><h4 style="padding-top: 5px" onMouseOver="this.style.color='black'" onMouseOut="this.style.color='black'">&nbsp;&nbsp;<img src="{{ asset('images/pipe-icon.png') }}" style="width:40px;height:40px">&nbsp;&nbsp;&nbsp;Piping&nbsp;&nbsp;(Weight: <?php echo round($weight_pipe[0]->weight,2)." | ".$per_pipe;?>)
+                    @role('Pipe')
+                    
+                    <?php // VALORES DE PROGRESO
+
+                              $maxprogress = DB::select("SELECT SUM(progressmax) as value FROM disoctrls"); //PESO TOTAL DE LOS ISOMETRICOS
+                              $progressreal = DB::select("SELECT SUM(progressreal) as value FROM disoctrls");
+                              $progress = DB::select("SELECT SUM(progress) as value FROM disoctrls");
+
+                              $progressisoreal = round(($progressreal[0]->value / $maxprogress[0]->value)*100,0)+0; //SOBRE ISOMETRICOS
+                              $progressisototal = round(($progress[0]->value / $maxprogress[0]->value)*100,0)+0; //SOBRE ISOMETRICOS
+
+                              $total_weight= DB::select("SELECT SUM(weight) AS weight FROM dpipesfullview"); //PESO TOTAL
+
+                              $remaining_weight = ($total_weight[0]->weight)-($maxprogress[0]->value)+0; // PESO FALTANTE (ISOS POR SUBIR)
+
+                              //El remaining_weight se coloca al 0% para IFD y 50% para IFC
+
+                              $ifc = env('APP_IFC');
+
+                              if ($ifc==1){
+
+                                  $remaining_weight_progress=($remaining_weight/2)+0;
+
+                              }else{
+
+                                  $remaining_weight_progress=0;
+
+                              }
+
+                              //SOBRE EL PESO TOTAL MODELADO
+
+                              $progress = round(((($progress[0]->value)+($remaining_weight_progress))/(($maxprogress[0]->value)+($remaining_weight)))*100,0);
+
+                              $progressreal = round(((($progressreal[0]->value)+($remaining_weight_progress))/(($maxprogress[0]->value)+($remaining_weight)))*100,0);
+
+                  
+                   //FIN DE VALORES DE PROGRESO ?>
+                    
+                    <div id="menu_sel" style="height: 50px;border-radius: 4px;transition:200ms;" onMouseOver="this.style.background='#E0E0E0';" onMouseOut="this.style.background='white';"><a href="epipes" style="color:black;text-decoration:none;"><h4 style="padding-top: 5px" onMouseOver="this.style.color='black'" onMouseOut="this.style.color='black'">&nbsp;&nbsp;<img src="{{ asset('images/pipe-icon.png') }}" style="width:40px;height:40px">&nbsp;&nbsp;&nbsp;Piping&nbsp;&nbsp;(Weight: <?php echo round($weight_pipe[0]->weight,2)." | ".$per_pipe;?>)
 
                                      </h4></a></div>
 
@@ -96,8 +134,8 @@
 
                                       <div class="progress">
                                           <div id="equi" class="progress-bar" role="progressbar" aria-valuenow="70"
-                                          aria-valuemin="0" aria-valuemax="100" style="color:black;font-size: 15px;width:<?php echo $sum_per_pipe."%"; ?>;background-color: #A0AFD9">
-                                            <span class="sr-only"></span><?php echo round($sum_per_pipe,1)."%"; ?>
+                                          aria-valuemin="0" aria-valuemax="100" style="color:black;font-size: 15px;width:<?php echo $progress."%"; ?>;background-color: #A0AFD9">
+                                            <span class="sr-only"></span><?php echo $progress."%"; ?>
                                           </div>
                                         </div>
                       @endrole
