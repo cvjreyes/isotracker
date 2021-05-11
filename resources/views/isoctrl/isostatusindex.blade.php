@@ -156,9 +156,9 @@ $(document).on('click', '.edit-isostatus-modal', function() {
     $progressisoreal = round(($progressreal[0]->value / $maxprogress[0]->value)*100,0)+0; //SOBRE ISOMETRICOS
     $progressisototal = round(($progress[0]->value / $maxprogress[0]->value)*100,0)+0; //SOBRE ISOMETRICOS
 
-    //$total_weight= DB::select("SELECT SUM(weight) AS weight FROM dpipesfullview"); //PESO TOTAL
+    $total_weight= DB::select("SELECT SUM(weight) AS weight FROM dpipesfullview"); //PESO TOTAL
 
-    //$remaining_weight = ($total_weight[0]->weight)-($maxprogress[0]->value)+0; // PESO FALTANTE (ISOS POR SUBIR)
+    $remaining_weight = ($total_weight[0]->weight)-($maxprogress[0]->value)+0; // PESO FALTANTE (ISOS POR SUBIR)
 
     //El remaining_weight se coloca al 0% para IFD y 50% para IFC
 
