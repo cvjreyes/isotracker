@@ -149,6 +149,10 @@ $(document).on('click', '.edit-isostatus-modal', function() {
 
 <?php // VALORES DE PROGRESO
 
+    $progressenv = env('APP_progress');
+
+    if ($progressenv==1){
+
     $maxprogress = DB::select("SELECT SUM(progressmax) as value FROM disoctrls"); //PESO TOTAL DE LOS ISOMETRICOS
     $progressreal = DB::select("SELECT SUM(progressreal) as value FROM disoctrls");
     $progress = DB::select("SELECT SUM(progress) as value FROM disoctrls");
@@ -180,7 +184,7 @@ $(document).on('click', '.edit-isostatus-modal', function() {
 
     $progressreal = round(((($progressreal[0]->value)+($remaining_weight_progress))/(($maxprogress[0]->value)+($remaining_weight)))*100,0);
 
-
+}
 
 ?>
 
@@ -191,9 +195,10 @@ $(document).on('click', '.edit-isostatus-modal', function() {
 
         <h2><b><i>IsoTracker</i></b></h2>
         <h3>Status</h3>
+        <?php if ($progressenv==1){ ?>
         <h4>Progress: <?php echo $progress."%"; ?> <?php if (auth()->user()->hasRole('IsoctrlAdmin')){ ?> / Real Progress: <?php echo $progressreal."%"; ?><?php } ?></h4>
         <h4>Progress ISO: <?php echo $progressisototal."%"; ?> <?php if (auth()->user()->hasRole('IsoctrlAdmin')){ ?> / Real Progress ISO: <?php echo $progressisoreal."%"; ?><?php } ?></h4>
-   
+        <?php } ?>
         <br>
     </center>
     <table style='width: 100%'>
